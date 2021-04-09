@@ -40,13 +40,9 @@ export const parseTsTitledButton = async (
   };
 };
 
-type TsTitledScriptOutput =
-  | string
-  | [string, string]
-  | Promise<string>
-  | Promise<[string, string]>;
+type TsTitledScriptResult = string | [string, string];
 
-export const createTsTitledScript = (func: () => TsTitledScriptOutput) => {
+export const createTsTitledScript = (func: () => TsTitledScriptResult) => {
   const result = func();
 
   if (Array.isArray(result)) {
@@ -54,4 +50,16 @@ export const createTsTitledScript = (func: () => TsTitledScriptOutput) => {
   } else {
     console.log(result);
   }
+};
+
+export const createAsyncTsTitledScript = (
+  func: () => Promise<TsTitledScriptResult>
+) => {
+  func().then((result) => {
+    if (Array.isArray(result)) {
+      console.log(`${result[0]},${result[1]}`);
+    } else {
+      console.log(result);
+    }
+  });
 };

@@ -1,0 +1,15 @@
+{
+  "name": "example",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "tsc && node dist/index.js",
+    "watch": "tsc -w",
+    "clean": "rm -rf node_modules && yarn"
+  },
+  "dependencies": {
+    "ts-mtmr": "../",
+    "typescript": "^4.2.4"
+  }
+}

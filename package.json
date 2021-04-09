@@ -1,7 +1,7 @@
 {
-  "name": "@luismeyer/node-mtmr",
+  "name": "node-mtmr",
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
+    "registry": "https://registry.npmjs.org "
   },
   "repository": {
     "url": "git@github.com:luismeyer/node-mtmr.git"

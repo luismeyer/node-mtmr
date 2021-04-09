@@ -1,4 +1,13 @@
-import { getOutDir, getSrcDir, setOutDir, setSrcDir } from "./config";
+import { existsSync, writeFileSync } from "fs";
+import glob from "glob";
+import {
+  getAssetsDirName,
+  getEntryDir,
+  getOutDir,
+  setAssetsDirName,
+  setEntryDir,
+  setOutDir,
+} from "./config";
 import {
   MTMRBattery,
   MTMRBrightness,
@@ -35,11 +44,13 @@ import {
   MTMRVolumne,
   MTMRWeather,
 } from "./mtmr–types";
-import { clearLib } from "./utils/lib";
+import { clearOutDir, copyLibFile } from "./utils/lib";
 import {
   parseTsTitledButton,
   TsTitledButton,
 } from "./widgets/ts-titled-button";
+
+const { HOME } = process.env;
 
 export type Item =
   | TsTitledButton
@@ -78,13 +89,30 @@ export type Item =
   | MTMRDisplaySleep;
 
 type InitParams = {
-  srcDir: string;
-  outDir: string;
+  absoluteEntryDir: string;
+  absoluteOutDir: string;
+  assetsDirName: string;
 };
 
-export const init = ({ srcDir, outDir }: InitParams) => {
-  setOutDir(outDir);
-  setSrcDir(srcDir);
+export const init = ({
+  absoluteEntryDir,
+  absoluteOutDir,
+  assetsDirName,
+}: InitParams) => {
+  setOutDir(absoluteOutDir);
+  setEntryDir(absoluteEntryDir);
+  setAssetsDirName(assetsDirName);
+
+  console.info("Initiated ts-mtmr...");
+};
+
+const copyAssets = () => {
+  const files = glob.sync(`**/${getAssetsDirName()}/`, {
+    ignore: "**/node_modules/**",
+    absolute: true,
+  });
+
+  files.forEach(copyLibFile);
 };
 
 const handleItem = (item: Item): Promise<MTMRItem> => {
@@ -101,11 +129,41 @@ export const parseItems = async (items: Item[]) => {
     throw new Error("Missing absolute outDir");
   }
 
-  if (!getSrcDir()) {
+  if (!getEntryDir()) {
     throw new Error("Missing absolute srcDir");
   }
 
-  clearLib();
+  if (!getAssetsDirName()) {
+    throw new Error("Missing absolute srcDir");
+  }
 
-  return await Promise.all(items.map(handleItem));
+  clearOutDir();
+
+  copyAssets();
+
+  const result = await Promise.all(items.map(handleItem));
+
+  console.info("Successfully parsed items...");
+
+  return result;
+};
+
+type SaveItemsOptions = {
+  force?: boolean;
+};
+
+export const saveItems = (items: MTMRItem[], options?: SaveItemsOptions) => {
+  const configPath = HOME + "/Library/Application Support/MTMR/items.json";
+
+  const configAlreadyExists = existsSync(configPath);
+
+  if (configAlreadyExists && !options?.force) {
+    throw new Error(
+      "items.json already exists. Use the 'force' param to overwrite"
+    );
+  }
+
+  writeFileSync(configPath, JSON.stringify(items));
+
+  console.info("Created items.json...");
 };

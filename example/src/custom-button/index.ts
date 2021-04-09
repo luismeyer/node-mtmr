@@ -6,17 +6,13 @@ export const CustomButton: TsTitledButton = {
   type: "ts-titled-button",
   title: "00:00",
   bordered: true,
+  background: "#454545",
   refreshInterval: 1,
   source: resolve(__dirname, "./source.js"),
-  image: {
-    filePath: "./prime.png",
-  },
+  image: resolve(__dirname, "./assets/clock.png"),
+  singleTap: resolve(__dirname, "./tap.js"),
   alternativeImages: {
-    active: {
-      filePath: "./prime-green.png",
-    },
-    inactive: {
-      filePath: "./prime-red.png",
-    },
+    active: resolve(__dirname, "./assets/clock-green.png"),
+    inactive: resolve(__dirname, "./assets/clock-red.png"),
   },
 };

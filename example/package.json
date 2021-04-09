@@ -4,11 +4,12 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start": "tsc && node dist/index.js",
-    "watch": "tsc -w",
+    "start": "tsc && node src/index.js",
+    "watch": "tsc -w & nodemon -q --watch './src' --ignore 'src/**.js' src/index.js",
     "clean": "rm -rf node_modules && yarn"
   },
   "dependencies": {
+    "nodemon": "^2.0.7",
     "ts-mtmr": "../",
     "typescript": "^4.2.4"
   }

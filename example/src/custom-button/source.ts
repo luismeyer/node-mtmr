@@ -1,8 +1,8 @@
 import { createTsTitledScript } from "ts-mtmr";
+import state from "./assets/state.json";
 
 createTsTitledScript(() => {
-  const a = "test";
-  const b = "active";
+  const res = state.active ? "active" : "inactive";
 
-  return [a, b];
+  return [res, res];
 });

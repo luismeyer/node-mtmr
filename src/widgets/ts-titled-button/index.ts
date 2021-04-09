@@ -1,9 +1,5 @@
-import {
-  MTMRAction,
-  MTMRAlternativeImages,
-  MTMRImage,
-  MTMRScriptTitledButton,
-} from "../../mtmr–types";
+import { MTMRAction, MTMRScriptTitledButton } from "../../mtmr–types";
+import { parseTsImage, parseTSImageObject } from "../ts-image";
 import { createScriptWithWrapper, mergeActions } from "./api";
 
 export type TsTitledButton = {
@@ -16,9 +12,11 @@ export type TsTitledButton = {
   width?: number;
   background?: string;
   bordered?: boolean;
-  image?: MTMRImage;
+  image?: string;
   refreshInterval?: number;
-  alternativeImages?: MTMRAlternativeImages;
+  alternativeImages?: {
+    [key: string]: string;
+  };
   autoResize?: boolean;
   actions?: MTMRAction[];
 };
@@ -33,18 +31,26 @@ export const parseTsTitledButton = async (
     source: {
       filePath: await createScriptWithWrapper(
         button.source,
-        Object.keys(button.alternativeImages).length > 0
+        Object.keys(button.alternativeImages ?? {}).length > 0
       ),
     },
+    image: parseTsImage(button.image),
+    alternativeImages: parseTSImageObject(button.alternativeImages),
     actions: await mergeActions(button),
   };
 };
 
-export const createTsTitledScript = (func: () => string | [string, string]) => {
+type TsTitledScriptOutput =
+  | string
+  | [string, string]
+  | Promise<string>
+  | Promise<[string, string]>;
+
+export const createTsTitledScript = (func: () => TsTitledScriptOutput) => {
   const result = func();
 
   if (Array.isArray(result)) {
-    console.log(`${result[0]}, ${result[1]}`);
+    console.log(`${result[0]},${result[1]}`);
   } else {
     console.log(result);
   }

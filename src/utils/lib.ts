@@ -1,21 +1,41 @@
+import copy from "copy-dir";
 import fs from "fs";
-import { getOutDir, getSrcDir } from "../config";
+import { getEntryDir, getOutDir } from "../config";
 
-const removeSrcDir = (absolutePath: string) => {
+const removeEntryDir = (absolutePath: string) => {
   if (!fs.existsSync(absolutePath)) {
     throw new Error("File doesn't exist " + absolutePath);
   }
 
-  const srcDir = getSrcDir();
+  const srcDir = getEntryDir();
 
-  const startIndex = absolutePath.indexOf(srcDir) + srcDir.length;
-  return absolutePath.substring(startIndex, absolutePath.length);
+  const srcDirIndex = absolutePath.indexOf(srcDir);
+  if (srcDirIndex > -1) {
+    return absolutePath.substring(
+      srcDirIndex + srcDir.length,
+      absolutePath.length
+    );
+  }
+
+  return absolutePath;
 };
 
-export const srcToOutPath = (absolutePath: string) => {
-  const pathInDist = removeSrcDir(absolutePath);
+const removeBasePath = (absolutePath: string) => {
+  const base = process.cwd();
 
-  return getOutDir() + pathInDist;
+  const baseIndex = absolutePath.indexOf(base);
+  if (baseIndex > -1) {
+    return absolutePath.substring(baseIndex + base.length, absolutePath.length);
+  }
+
+  return absolutePath;
+};
+
+export const createOutPath = (absolutePath: string) => {
+  const pathNoSrc = removeEntryDir(absolutePath);
+  const pathNoBase = removeBasePath(pathNoSrc);
+
+  return getOutDir() + pathNoBase;
 };
 
 export const clearAbsoluteOutPath = (absoluteOutPath: string) => {
@@ -40,8 +60,10 @@ const fixMissingPaths = (absolutePath: string) => {
 };
 
 export const createLibFile = (absolutePath: string, content: string) => {
-  const outPath = srcToOutPath(absolutePath);
+  const outPath = createOutPath(absolutePath);
+
   clearAbsoluteOutPath(outPath);
+  fixMissingPaths(outPath);
 
   fixMissingPaths(outPath);
   fs.writeFileSync(outPath, content);
@@ -50,17 +72,17 @@ export const createLibFile = (absolutePath: string, content: string) => {
 };
 
 export const copyLibFile = (absolutePath: string) => {
-  const outPath = srcToOutPath(absolutePath);
-  clearAbsoluteOutPath(outPath);
+  const outPath = createOutPath(absolutePath);
 
+  clearAbsoluteOutPath(outPath);
   fixMissingPaths(outPath);
 
-  fs.copyFileSync(absolutePath, outPath);
+  copy.sync(absolutePath, outPath);
 
   return outPath;
 };
 
-export const clearLib = () => {
+export const clearOutDir = () => {
   const outDir = getOutDir();
   fs.rmSync(outDir, { recursive: true, force: true });
   fs.mkdirSync(outDir);

@@ -94,18 +94,6 @@ type InitParams = {
   assetsDirName: string;
 };
 
-export const init = ({
-  absoluteEntryDir,
-  absoluteOutDir,
-  assetsDirName,
-}: InitParams) => {
-  setOutDir(absoluteOutDir);
-  setEntryDir(absoluteEntryDir);
-  setAssetsDirName(assetsDirName);
-
-  console.info("Initiated ts-mtmr...");
-};
-
 const copyAssets = () => {
   const files = glob.sync(`**/${getAssetsDirName()}/`, {
     ignore: "**/node_modules/**",
@@ -124,7 +112,7 @@ const handleItem = (item: Item): Promise<MTMRItem> => {
   }
 };
 
-export const parseItems = async (items: Item[]) => {
+const parseItems = async (items: Item[]) => {
   if (!getOutDir()) {
     throw new Error("Missing absolute outDir");
   }
@@ -146,6 +134,20 @@ export const parseItems = async (items: Item[]) => {
   console.info("Successfully parsed items...");
 
   return result;
+};
+
+export const createParse = ({
+  absoluteEntryDir,
+  absoluteOutDir,
+  assetsDirName,
+}: InitParams) => {
+  setOutDir(absoluteOutDir);
+  setEntryDir(absoluteEntryDir);
+  setAssetsDirName(assetsDirName);
+
+  console.info("Initiated ts-mtmr...");
+
+  return parseItems;
 };
 
 type SaveItemsOptions = {

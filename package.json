@@ -1,5 +1,5 @@
 {
-  "name": "ts-mtmr",
+  "name": "node-mtmr",
   "version": "1.0.0",
   "main": "dist",
   "types": "dist",

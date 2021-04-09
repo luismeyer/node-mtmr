@@ -1,5 +1,5 @@
 import path from "path";
-import { init, Item, parseItems, saveItems } from "ts-mtmr";
+import { createParse, Item, saveItems } from "ts-mtmr";
 import { ControllsGroup } from "./controlls-group";
 import { CustomButton } from "./custom-button";
 
@@ -10,13 +10,13 @@ const items: Item[] = [
 ];
 
 const execute = async () => {
-  init({
+  const parse = createParse({
     absoluteEntryDir: path.resolve(__dirname, "./"),
     absoluteOutDir: path.resolve(__dirname, "../mtmr"),
     assetsDirName: "assets",
   });
 
-  const result = await parseItems(items);
+  const result = await parse(items);
 
   saveItems(result, { force: true });
 };

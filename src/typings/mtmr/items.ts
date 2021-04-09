@@ -12,7 +12,7 @@ export type MTMRBaseItem = {
   refreshInterval?: number;
 };
 
-export type MTMRGesture = {
+export type MTMRGesture = MTMRBaseItem & {
   type: "swipe";
   fingers: number;
   direction: "right" | "left";

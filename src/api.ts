@@ -8,85 +8,12 @@ import {
   setEntryDir,
   setOutDir,
 } from "./config";
-import {
-  MTMRBattery,
-  MTMRBrightness,
-  MTMRBrightnessDown,
-  MTMRBrightnessUp,
-  MTMRClose,
-  MTMRCurrency,
-  MTMRDarkMode,
-  MTMRDisplaySleep,
-  MTMRDnd,
-  MTMRDock,
-  MTMREscape,
-  MTMRExitTouchbar,
-  MTMRGesture,
-  MTMRGroup,
-  MTMRIlluminationDown,
-  MTMRIlluminationUp,
-  MTMRInputsource,
-  MTMRItem,
-  MTMRMusic,
-  MTMRMute,
-  MTMRNetwork,
-  MTMRNext,
-  MTMRNightShift,
-  MTMRPlay,
-  MTMRPomodoro,
-  MTMRPrevious,
-  MTMRSleep,
-  MTMRStaticButton,
-  MTMRTimeButton,
-  MTMRUpnext,
-  MTMRVolumeDown,
-  MTMRVolumeUp,
-  MTMRVolumne,
-  MTMRWeather,
-} from "./mtmr–types";
+import { parse } from "./parsers";
+import { Item } from "./typings/api";
+import { MTMRItem } from "./typings/mtmr";
 import { clearOutDir, copyLibFile } from "./utils/lib";
-import {
-  parseTsTitledButton,
-  TsTitledButton,
-} from "./widgets/ts-titled-button";
 
 const { HOME } = process.env;
-
-export type Item =
-  | TsTitledButton
-  | MTMRGesture
-  | MTMRBrightness
-  | MTMRVolumne
-  | MTMRStaticButton
-  | MTMRGroup
-  | MTMRClose
-  | MTMRMusic
-  | MTMRPomodoro
-  | MTMRNetwork
-  | MTMRDock
-  | MTMREscape
-  | MTMRBrightnessDown
-  | MTMRBrightnessUp
-  | MTMRExitTouchbar
-  | MTMRIlluminationUp
-  | MTMRIlluminationDown
-  | MTMRVolumeDown
-  | MTMRVolumeUp
-  | MTMRMute
-  | MTMRTimeButton
-  | MTMRBattery
-  | MTMRCurrency
-  | MTMRWeather
-  | MTMRInputsource
-  | MTMRNightShift
-  | MTMRDnd
-  | MTMRDarkMode
-  | MTMRUpnext
-  | MTMRPrevious
-  | MTMRPlay
-  | MTMRNext
-  | MTMRSleep
-  | MTMRDisplaySleep;
 
 type InitParams = {
   absoluteEntryDir: string;
@@ -101,15 +28,6 @@ const copyAssets = () => {
   });
 
   files.forEach(copyLibFile);
-};
-
-const handleItem = (item: Item): Promise<MTMRItem> => {
-  switch (item.type) {
-    case "ts-titled-button":
-      return parseTsTitledButton(item);
-    default:
-      return Promise.resolve(item);
-  }
 };
 
 const parseItems = async (items: Item[]) => {
@@ -129,7 +47,7 @@ const parseItems = async (items: Item[]) => {
 
   copyAssets();
 
-  const result = await Promise.all(items.map(handleItem));
+  const result = await Promise.all(items.map(parse));
 
   console.info("Successfully parsed items...");
 

@@ -1,9 +1,20 @@
 {
-  "name": "node-mtmr",
+  "name": "@luismeyer/node-mtmr",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
+  "repository": {
+    "url": "git@github.com:luismeyer/node-mtmr.git"
+  },
+  "keywords": [
+    "typescript",
+    "mtmr",
+    "node"
+  ],
   "version": "1.0.0",
-  "main": "lib",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "homepage": "https://github.com/luismeyer/node-mtmr#readme",
-  "types": "lib",
   "license": "MIT",
   "scripts": {
     "build": "tsc",

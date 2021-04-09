@@ -2,6 +2,7 @@
   "name": "node-mtmr",
   "version": "1.0.0",
   "main": "lib",
+  "homepage": "https://github.com/luismeyer/node-mtmr#readme",
   "types": "lib",
   "license": "MIT",
   "scripts": {

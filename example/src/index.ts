@@ -1,5 +1,5 @@
+import { createParse, Item, saveItems } from "node-mtmr";
 import path from "path";
-import { createParse, Item, saveItems } from "ts-mtmr";
 import { ControllsGroup } from "./controlls-group";
 import { CustomButton } from "./custom-button";
 

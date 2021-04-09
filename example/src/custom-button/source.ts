@@ -1,4 +1,4 @@
-import { createTsTitledScript } from "ts-mtmr";
+import { createTsTitledScript } from "node-mtmr";
 import state from "./assets/state.json";
 
 createTsTitledScript(() => {

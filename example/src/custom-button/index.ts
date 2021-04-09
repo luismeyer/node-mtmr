@@ -1,5 +1,5 @@
+import { TsTitledButton } from "node-mtmr";
 import { resolve } from "path";
-import { TsTitledButton } from "ts-mtmr";
 
 export const CustomButton: TsTitledButton = {
   align: "left",

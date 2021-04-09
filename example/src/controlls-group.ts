@@ -1,4 +1,4 @@
-import { MTMRGroup } from "ts-mtmr/dist";
+import { MTMRGroup } from "node-mtmr";
 
 export const ControllsGroup: MTMRGroup = {
   type: "group",

@@ -5,7 +5,7 @@ This is a Node library which wraps around [MTMR](https://github.com/Toxblh/MTMR)
 1. TS/JS support for button handlers
 2. Typescript typings for the items.json
 
-For further documentation have a look at the original [repo](https://github.com/Toxblh/MTMR)
+For further documentation have a look at the original [repo](https://github.com/Toxblh/MTMR).
 
 ## Installation
 
@@ -21,11 +21,11 @@ yarn add node-mtmr
 
 ## Setup
 
-A working example can be found [here](./example)
+A working example can be found [here](./example).
 
-IMPORTANT: Make sure you have no "outDir" configured in your tsconfig. Otherwise the path's are weird
+IMPORTANT: Make sure you have no "outDir" configured in your tsconfig. Otherwise the path's are messed up!!!
 
-In your index file create the parse function
+In your index file create the parse function:
 
 ```js
 import { createParse } from "ts-mtmr";

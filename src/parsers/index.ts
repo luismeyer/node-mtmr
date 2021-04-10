@@ -19,7 +19,7 @@ export const parse = async (item: Item): Promise<MTMRItem> => {
     default:
       pureItem = {
         ...item,
-        actions: [],
+        actions: baseItem.actions,
       };
   }
 

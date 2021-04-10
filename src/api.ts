@@ -1,25 +1,19 @@
 import { existsSync, writeFileSync } from "fs";
 import glob from "glob";
 import {
+  Configuration,
   getAssetsDirName,
   getEntryDir,
   getOutDir,
-  setAssetsDirName,
-  setEntryDir,
-  setOutDir,
+  initConfig,
 } from "./config";
 import { parse } from "./parsers";
 import { Item } from "./typings/api";
 import { MTMRItem } from "./typings/mtmr";
 import { clearOutDir, copyLibFile } from "./utils/lib";
+import { loggerInfo } from "./utils/logging";
 
 const { HOME } = process.env;
-
-type InitParams = {
-  absoluteEntryDir: string;
-  absoluteOutDir: string;
-  assetsDirName: string;
-};
 
 const copyAssets = () => {
   const files = glob.sync(`**/${getAssetsDirName()}/`, {
@@ -49,21 +43,15 @@ const parseItems = async (items: Item[]) => {
 
   const result = await Promise.all(items.map(parse));
 
-  console.info("Successfully parsed items...");
+  loggerInfo("Successfully parsed items...");
 
   return result;
 };
 
-export const createParse = ({
-  absoluteEntryDir,
-  absoluteOutDir,
-  assetsDirName,
-}: InitParams) => {
-  setOutDir(absoluteOutDir);
-  setEntryDir(absoluteEntryDir);
-  setAssetsDirName(assetsDirName);
+export const createParse = (config: Configuration) => {
+  initConfig(config);
 
-  console.info("Initiated ts-mtmr...");
+  loggerInfo("Initiated ts-mtmr...");
 
   return parseItems;
 };
@@ -85,5 +73,5 @@ export const saveItems = (items: MTMRItem[], options?: SaveItemsOptions) => {
 
   writeFileSync(configPath, JSON.stringify(items));
 
-  console.info("Created items.json...");
+  loggerInfo("Created items.json...");
 };

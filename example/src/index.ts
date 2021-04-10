@@ -14,6 +14,7 @@ const execute = async () => {
     absoluteEntryDir: path.resolve(__dirname, "./"),
     absoluteOutDir: path.resolve(__dirname, "../mtmr-dist"),
     assetsDirName: "assets",
+    loggingEnabled: true,
   });
 
   const result = await parse(items);

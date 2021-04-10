@@ -34,12 +34,14 @@ const parse = createParse({
   absoluteEntryDir: path.resolve(__dirname, "./"),
   absoluteOutDir: path.resolve(__dirname, "../mtmr"),
   assetsDirName: "assets",
+  loggingEnabled: true,
 });
 ```
 
-1. 'absoluteEntryDir' tells the library where the index file is located
+1. 'absoluteEntryDir' is the path where the index file is located
 2. 'absoluteOutDir' is the output path for the script and assets
-3. 'assetsDirName' configures the name of the asset directories. On parse the lib will copy all asset directories into the 'absoluteOutDir'
+3. 'assetsDirName' is the name of the asset directories. On parse the lib will copy all asset directories into the 'absoluteOutDir'
+4. 'loggingEnabled' configures the logging output
 
 Pass the items to the parse function. The result is a correct MTMR item array.
 

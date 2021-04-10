@@ -16,11 +16,14 @@ const createTempScript = (script: string): string => {
   return tmpPath;
 };
 
-const compile = (scriptPath: string, outputPath?: string): Promise<string> => {
+export const compileApplescriptFile = (
+  scriptPath: string,
+  outputPath?: string
+): Promise<string> => {
   const out = outputPath ?? createTmpFileName("scpt");
 
-  return new Promise(function (resolve, reject) {
-    const child = exec(`osacompile -o ${out} ${scriptPath}`, (err) => {
+  return new Promise((resolve, reject) => {
+    exec(`osacompile -o ${out} ${scriptPath}`, (err) => {
       if (err) {
         reject(err);
       }
@@ -30,10 +33,10 @@ const compile = (scriptPath: string, outputPath?: string): Promise<string> => {
   });
 };
 
-export const compileApplescript = (
+export const compileApplescriptString = (
   script: string,
   outputFile?: string
 ): Promise<string> => {
   const filePath = createTempScript(script);
-  return compile(filePath, outputFile);
+  return compileApplescriptFile(filePath, outputFile);
 };

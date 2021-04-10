@@ -20,7 +20,7 @@ const removeEntryDir = (absolutePath: string) => {
   return absolutePath;
 };
 
-const removeBasePath = (absolutePath: string) => {
+const removeBasePath = (absolutePath: string): string => {
   const base = process.cwd();
 
   const baseIndex = absolutePath.indexOf(base);
@@ -31,11 +31,20 @@ const removeBasePath = (absolutePath: string) => {
   return absolutePath;
 };
 
-export const createOutPath = (absolutePath: string) => {
+export const getOutPath = (absolutePath: string): string => {
   const pathNoSrc = removeEntryDir(absolutePath);
   const pathNoBase = removeBasePath(pathNoSrc);
 
   return getOutDir() + pathNoBase;
+};
+
+export const setupOutPath = (absolutePath: string): string => {
+  const outPath = getOutPath(absolutePath);
+
+  clearAbsoluteOutPath(outPath);
+  fixMissingPaths(outPath);
+
+  return outPath;
 };
 
 export const clearAbsoluteOutPath = (absoluteOutPath: string) => {
@@ -60,10 +69,7 @@ const fixMissingPaths = (absolutePath: string) => {
 };
 
 export const createLibFile = (absolutePath: string, content: string) => {
-  const outPath = createOutPath(absolutePath);
-
-  clearAbsoluteOutPath(outPath);
-  fixMissingPaths(outPath);
+  const outPath = setupOutPath(absolutePath);
 
   fixMissingPaths(outPath);
   fs.writeFileSync(outPath, content);
@@ -72,10 +78,7 @@ export const createLibFile = (absolutePath: string, content: string) => {
 };
 
 export const copyLibFile = (absolutePath: string) => {
-  const outPath = createOutPath(absolutePath);
-
-  clearAbsoluteOutPath(outPath);
-  fixMissingPaths(outPath);
+  const outPath = setupOutPath(absolutePath);
 
   copy.sync(absolutePath, outPath);
 

@@ -7,8 +7,13 @@ export const parseBaseItem = async (
   baseItem: BaseItem
 ): Promise<MTMRBaseItem> => {
   return {
-    ...baseItem,
-    image: baseItem.image && parseImage(baseItem.image),
-    actions: baseItem.actions && (await parseActions(baseItem.actions)),
+    align: baseItem.align,
+    width: baseItem.width,
+    background: baseItem.background,
+    title: baseItem.title,
+    bordered: baseItem.bordered,
+    refreshInterval: baseItem.refreshInterval,
+    image: parseImage(baseItem.image),
+    actions: await parseActions(baseItem.actions),
   };
 };

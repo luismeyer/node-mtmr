@@ -3,7 +3,7 @@ import { ScriptTitledButton } from "../typings/api";
 import { MTMRScriptTitledButton, MTMRSource } from "../typings/mtmr";
 import { copyLibFile } from "../utils/lib";
 import { parseAlternativeImages } from "./image";
-import { parseSource } from "./source";
+import { parseApplescriptSource, parseSource } from "./source";
 
 type ButtonType = "appleScript" | "shellScript" | "typeScript";
 
@@ -36,11 +36,11 @@ const createSource = async (
   button: ScriptTitledButton
 ): Promise<MTMRSource> => {
   if (type === "appleScript") {
-    return parseSource(button.appleScriptSource);
+    return parseApplescriptSource(button.appleScriptSource);
   }
 
   if (type === "shellScript") {
-    return parseSource(button.shellScriptSource);
+    return parseSource(button.shellScriptSource, copyLibFile);
   }
 
   if (type === "typeScript") {

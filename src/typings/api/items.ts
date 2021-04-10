@@ -36,7 +36,7 @@ export type StaticButton = BaseItem & {
 
 export type ScriptTitledButton = BaseItem & {
   type: "scriptTitledButton";
-  tsSource?: string;
+  jsSource?: string;
   appleScriptSource?: Source;
   shellScriptSource?: Source;
   alternativeImages?: AlternativeImages;

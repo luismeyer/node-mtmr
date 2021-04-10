@@ -33,10 +33,10 @@ export type OpenUrlAction = {
   url: string;
 };
 
-export type TypeScriptAction = {
+export type JavaScriptAction = {
   trigger: ActionTrigger;
-  action: "typeScript";
-  actionTypeScript: string;
+  action: "javaScript";
+  actionJavaScript: string;
 };
 
 export type Action =
@@ -45,4 +45,4 @@ export type Action =
   | AppleScriptAction
   | ShellScriptAction
   | OpenUrlAction
-  | TypeScriptAction;
+  | JavaScriptAction;

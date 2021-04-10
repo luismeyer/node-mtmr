@@ -5,7 +5,7 @@ import { copyLibFile } from "../utils/lib";
 import { parseAlternativeImages } from "./image";
 import { parseApplescriptSource, parseSource } from "./source";
 
-type ButtonType = "appleScript" | "shellScript" | "typeScript";
+type ButtonType = "appleScript" | "shellScript" | "javaScript";
 
 const destructType = (button: ScriptTitledButton): ButtonType => {
   if ("appleScriptSource" in button) {
@@ -16,15 +16,15 @@ const destructType = (button: ScriptTitledButton): ButtonType => {
     return "shellScript";
   }
 
-  if ("tsSource" in button) {
-    return "typeScript";
+  if ("jsSource" in button) {
+    return "javaScript";
   }
 
   throw new Error("Missing source for button: " + button.type);
 };
 
 const createType = (type: ButtonType): MTMRScriptTitledButton["type"] => {
-  if (type === "appleScript" || type === "typeScript") {
+  if (type === "appleScript" || type === "javaScript") {
     return "appleScriptTitledButton";
   }
 
@@ -43,8 +43,8 @@ const createSource = async (
     return parseSource(button.shellScriptSource, copyLibFile);
   }
 
-  if (type === "typeScript") {
-    const libPath = copyLibFile(button.tsSource);
+  if (type === "javaScript") {
+    const libPath = copyLibFile(button.jsSource);
 
     return {
       filePath: await createJsWrapper(

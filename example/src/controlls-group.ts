@@ -1,6 +1,6 @@
-import { MTMRGroup } from "node-mtmr";
+import { Group } from "node-mtmr";
 
-export const ControllsGroup: MTMRGroup = {
+export const ControllsGroup: Group = {
   type: "group",
   align: "right",
   title: "🖥",

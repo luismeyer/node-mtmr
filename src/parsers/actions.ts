@@ -19,8 +19,8 @@ const parseAction = async (action: Action): Promise<MTMRAction> => {
     };
   }
 
-  if (action.action === "typeScript") {
-    const libPath = copyLibFile(action.actionTypeScript);
+  if (action.action === "javaScript") {
+    const libPath = copyLibFile(action.actionJavaScript);
 
     return {
       ...action,

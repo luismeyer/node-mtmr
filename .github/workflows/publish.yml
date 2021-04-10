@@ -1,3 +1,5 @@
+name: Publish npm
+
 on:
   push:
     branches:

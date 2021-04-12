@@ -28,7 +28,7 @@ IMPORTANT: Make sure you have no "outDir" configured in your tsconfig. Otherwise
 In your index file create the parse function:
 
 ```js
-import { createParse } from "ts-mtmr";
+import { createParse } from "node-mtmr";
 
 const parse = createParse({
   absoluteEntryDir: path.resolve(__dirname, "./"),
@@ -52,7 +52,7 @@ const result = await parse(items);
 There is a utility function for saving the output into the MTMR directory. Pass an options object with the force set to true to overwrite an existing file.
 
 ```js
-import { saveItems } from "ts-mtmr";
+import { saveItems } from "node-mtmr";
 
 saveItems(result, { force: true });
 ```

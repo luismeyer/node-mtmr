@@ -1,41 +1,23 @@
 import copy from "copy-dir";
 import fs from "fs";
-import { getEntryDir, getOutDir } from "../config";
+import { getOutDir } from "../config";
 
-const removeEntryDir = (absolutePath: string) => {
-  if (!fs.existsSync(absolutePath)) {
-    throw new Error("File doesn't exist " + absolutePath);
+const removeSubPath = (absolutePath: string, subpath: string) => {
+  if (!absolutePath.includes(subpath)) {
+    return absolutePath;
   }
 
-  const srcDir = getEntryDir();
-
-  const srcDirIndex = absolutePath.indexOf(srcDir);
-  if (srcDirIndex > -1) {
-    return absolutePath.substring(
-      srcDirIndex + srcDir.length,
-      absolutePath.length
-    );
-  }
-
-  return absolutePath;
-};
-
-const removeBasePath = (absolutePath: string): string => {
-  const base = process.cwd();
-
-  const baseIndex = absolutePath.indexOf(base);
-  if (baseIndex > -1) {
-    return absolutePath.substring(baseIndex + base.length, absolutePath.length);
-  }
-
-  return absolutePath;
+  return absolutePath.substring(
+    absolutePath.indexOf(subpath) + subpath.length,
+    absolutePath.length
+  );
 };
 
 export const getOutPath = (absolutePath: string): string => {
-  const pathNoSrc = removeEntryDir(absolutePath);
-  const pathNoBase = removeBasePath(pathNoSrc);
+  const pathNoRequireMain = removeSubPath(absolutePath, require.main.path);
+  const pathNoCWD = removeSubPath(pathNoRequireMain, process.cwd());
 
-  return getOutDir() + pathNoBase;
+  return getOutDir() + pathNoCWD;
 };
 
 export const setupOutPath = (absolutePath: string): string => {

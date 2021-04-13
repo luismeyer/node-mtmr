@@ -1,56 +1,29 @@
 import { existsSync, writeFileSync } from "fs";
-import glob from "glob";
-import {
-  Configuration,
-  getAssetsDirName,
-  getEntryDir,
-  getOutDir,
-  initConfig,
-} from "./config";
+import { Configuration, initConfig } from "./config";
 import { parse } from "./parsers";
+import { parseAssets } from "./parsers/assets";
 import { Item } from "./typings/api";
 import { MTMRItem } from "./typings/mtmr";
-import { clearOutDir, copyLibFile } from "./utils/lib";
-import { loggerInfo } from "./utils/logging";
+import { clearOutDir } from "./utils/lib";
+import { loggerError, loggerInfo } from "./utils/logging";
 
 const { HOME } = process.env;
 
-const copyAssets = () => {
-  const files = glob.sync(`**/${getAssetsDirName()}/`, {
-    ignore: "**/node_modules/**",
-    absolute: true,
-  });
-
-  files.forEach(copyLibFile);
-};
-
 const parseItems = async (items: Item[]) => {
-  if (!getOutDir()) {
-    throw new Error("Missing absolute outDir");
-  }
-
-  if (!getEntryDir()) {
-    throw new Error("Missing absolute srcDir");
-  }
-
-  if (!getAssetsDirName()) {
-    throw new Error("Missing absolute srcDir");
-  }
-
   clearOutDir();
+  loggerInfo("Cleared outDir...");
 
-  copyAssets();
+  parseAssets();
+  loggerInfo("Parsed assets...");
 
   const result = await Promise.all(items.map(parse));
-
-  loggerInfo("Successfully parsed items...");
+  loggerInfo("Parsed items...");
 
   return result;
 };
 
 export const createParse = (config: Configuration) => {
   initConfig(config);
-
   loggerInfo("Initiated ts-mtmr...");
 
   return parseItems;
@@ -66,12 +39,11 @@ export const saveItems = (items: MTMRItem[], options?: SaveItemsOptions) => {
   const configAlreadyExists = existsSync(configPath);
 
   if (configAlreadyExists && !options?.force) {
-    throw new Error(
+    loggerError(
       "items.json already exists. Use the 'force' param to overwrite"
     );
   }
 
   writeFileSync(configPath, JSON.stringify(items));
-
   loggerInfo("Created items.json...");
 };

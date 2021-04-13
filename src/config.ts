@@ -1,5 +1,4 @@
 export type Configuration = {
-  absoluteEntryDir: string;
   absoluteOutDir: string;
   assetsDirName: string;
   loggingEnabled?: boolean;
@@ -7,9 +6,18 @@ export type Configuration = {
 
 let Config: Configuration = {
   absoluteOutDir: "",
-  absoluteEntryDir: "",
   assetsDirName: "",
   loggingEnabled: true,
+};
+
+const validateConfig = () => {
+  if (!getOutDir()) {
+    throw new Error("Missing absolute outDir");
+  }
+
+  if (!getAssetsDirName()) {
+    throw new Error("Missing absolute srcDir");
+  }
 };
 
 export const initConfig = (newConfig: Configuration) => {
@@ -17,11 +25,11 @@ export const initConfig = (newConfig: Configuration) => {
     ...Config,
     ...newConfig,
   };
+
+  validateConfig();
 };
 
 export const getOutDir = () => Config.absoluteOutDir;
-
-export const getEntryDir = () => Config.absoluteEntryDir;
 
 export const getAssetsDirName = () => Config.assetsDirName;
 

@@ -1,7 +1,5 @@
-import { createJsWrapper } from "../apple/js-wrapper";
 import { ScriptTitledButton } from "../typings/api";
 import { MTMRScriptTitledButton, MTMRSource } from "../typings/mtmr";
-import { copyLibFile } from "../lib";
 import { parseAlternativeImages } from "./image";
 import {
   parseApplescriptSource,

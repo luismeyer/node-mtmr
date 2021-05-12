@@ -2,7 +2,7 @@ import glob from "glob";
 import { Config } from "../config";
 import { copyLibFile } from "../lib";
 
-export const parseAssets = () => {
+export const parseAssets = (): string[] => {
   const outDir = Config.tsCompilerOptions
     ? `${Config.tsCompilerOptions.outDir}/**`
     : "";
@@ -12,5 +12,5 @@ export const parseAssets = () => {
     absolute: true,
   });
 
-  files.forEach(copyLibFile);
+  return files.map(copyLibFile);
 };

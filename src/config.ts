@@ -29,7 +29,7 @@ const validateConfig = () => {
   }
 };
 
-export const initConfig = (newConfig: ConfigurationOptions) => {
+export const initConfig = (newConfig: ConfigurationOptions): void => {
   Config = {
     ...Config,
     ...newConfig,

@@ -14,7 +14,10 @@ on split(theString, theDelimiter)
 end split
 `;
 
-export const createJsWrapper = (scriptPath: string, needsSplit?: boolean) => {
+export const createJsWrapper = (
+  scriptPath: string,
+  needsSplit?: boolean
+): Promise<string> => {
   const script = `
     ${needsSplit ? ARRAY_SPLIT : ""}
 

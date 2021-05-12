@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, rmdirSync, rmSync, writeFileSync } from "fs";
+import { existsSync, mkdirSync, rmSync, writeFileSync } from "fs";
 import { Config, ConfigurationOptions, initConfig } from "./config";
 import { parse } from "./parsers";
 import { parseAssets } from "./parsers/assets";
@@ -9,7 +9,9 @@ import { loggerError, loggerInfo } from "./logging";
 
 const { HOME } = process.env;
 
-const parseItems = async (items: Item[]) => {
+type Parse = (items: Item[]) => Promise<MTMRItem[]>;
+
+const parseItems: Parse = async (items) => {
   const outDir = Config.absoluteOutDir;
   rmSync(outDir, { recursive: true, force: true });
   mkdirSync(outDir);
@@ -28,7 +30,9 @@ const parseItems = async (items: Item[]) => {
   return result;
 };
 
-export const createParse = (config: ConfigurationOptions) => {
+type CreateParse = (config: ConfigurationOptions) => Parse;
+
+export const createParse: CreateParse = (config) => {
   initConfig(config);
   loggerInfo("Initiated ts-mtmr...");
 
@@ -39,7 +43,10 @@ type SaveItemsOptions = {
   force?: boolean;
 };
 
-export const saveItems = (items: MTMRItem[], options?: SaveItemsOptions) => {
+export const saveItems = (
+  items: MTMRItem[],
+  options?: SaveItemsOptions
+): void => {
   const configPath = HOME + "/Library/Application Support/MTMR/items.json";
 
   const configAlreadyExists = existsSync(configPath);

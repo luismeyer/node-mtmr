@@ -1,10 +1,25 @@
 import { Config } from "./config";
 
-export const loggerLog = (message: string) =>
-  Config.loggingEnabled && console.log(message);
+export const loggerLog = (message: string): void => {
+  if (!Config.loggingEnabled) {
+    return;
+  }
 
-export const loggerInfo = (message: string) =>
-  Config.loggingEnabled && console.info(message);
+  console.log(message);
+};
 
-export const loggerError = (message: string) =>
-  Config.loggingEnabled && console.error(message);
+export const loggerInfo = (message: string): void => {
+  if (!Config.loggingEnabled) {
+    return;
+  }
+
+  console.info(message);
+};
+
+export const loggerError = (message: string): void => {
+  if (!Config.loggingEnabled) {
+    return;
+  }
+
+  console.error(message);
+};

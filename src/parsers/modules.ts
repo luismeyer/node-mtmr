@@ -2,7 +2,7 @@ import glob from "glob";
 import { Config } from "../config";
 import { copyLibFile } from "../lib";
 
-export const parseModules = () => {
+export const parseModules = (): string[] => {
   // Exclude the src dir with ts files when the outdir is set
   const rootDir =
     Config.tsCompilerOptions && Boolean(Config.tsCompilerOptions.outDir)
@@ -14,5 +14,5 @@ export const parseModules = () => {
     absolute: true,
   });
 
-  files.forEach(copyLibFile);
+  return files.map(copyLibFile);
 };

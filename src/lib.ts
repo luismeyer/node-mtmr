@@ -34,7 +34,7 @@ export const getOutPath = (absolutePath: string): string => {
   return join(Config.absoluteOutDir, path);
 };
 
-export const getInPath = (absolutePath: string) => {
+export const getInPath = (absolutePath: string): string => {
   const { tsCompilerOptions } = Config;
 
   if (!tsCompilerOptions?.outDir) {
@@ -56,7 +56,7 @@ export const setupOutPath = (absolutePath: string): string => {
   return outPath;
 };
 
-export const clearAbsoluteOutPath = (absoluteOutPath: string) => {
+export const clearAbsoluteOutPath = (absoluteOutPath: string): void => {
   if (!fs.existsSync(absoluteOutPath)) {
     return;
   }
@@ -64,7 +64,7 @@ export const clearAbsoluteOutPath = (absoluteOutPath: string) => {
   fs.rmSync(absoluteOutPath, { recursive: true, force: true });
 };
 
-export const copyLibFile = (absolutePath: string) => {
+export const copyLibFile = (absolutePath: string): string => {
   const outPath = setupOutPath(absolutePath);
 
   copy.sync(absolutePath, outPath);

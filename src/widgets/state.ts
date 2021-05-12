@@ -11,7 +11,7 @@ const readState = () => {
   return JSON.parse(stateData);
 };
 
-const persistState = (state: any) => {
+const persistState = <S>(state: S) => {
   if (!fs.existsSync(statePath)) {
     fs.writeFileSync(statePath, "{}");
   }
@@ -20,7 +20,7 @@ const persistState = (state: any) => {
 };
 
 export const stateFunction = <T>(identifier: string) => {
-  return (value: T) => {
+  return (value: T): void => {
     const newState = {
       ...readState(),
       [identifier]: value,

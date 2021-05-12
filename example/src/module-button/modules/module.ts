@@ -1,15 +1,12 @@
-import { state } from "node-mtmr";
-
-export function someModuleFunction(arg: string) {
+export function someModuleFunction(arg: string): string {
   return "this " + arg;
 }
 
-export function anotherModuleFunction(arg: string) {
+export function anotherModuleFunction(arg: string): string {
   return "is " + arg;
 }
 
-export const useState = () =>
-  state("module-button", {
-    title: "a module",
-    toggle: true,
-  });
+export type State = {
+  title: string;
+  toggle: boolean;
+};

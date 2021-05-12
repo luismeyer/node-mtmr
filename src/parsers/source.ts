@@ -32,7 +32,7 @@ export const parseShellScriptSource = (source: Source): MTMRSource => {
 
 export const parseJavaScriptSource = async (
   jsSource: string,
-  withSplit: boolean = false
+  withSplit = false
 ): Promise<MTMRSource> => {
   const libPath = copyLibFile(jsSource);
 

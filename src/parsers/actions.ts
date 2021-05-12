@@ -1,8 +1,7 @@
-import { createJsWrapper } from "../apple/js-wrapper";
 import { Action } from "../typings/api";
 import { MTMRAction } from "../typings/mtmr";
-import { copyLibFile } from "../lib";
-import { parseApplescriptSource } from "./source";
+import { copyLibFile, getInPath } from "../lib";
+import { parseApplescriptSource, parseJavaScriptSource } from "./source";
 
 const parseAction = async (action: Action): Promise<MTMRAction> => {
   if (action.action === "appleScript") {
@@ -13,21 +12,19 @@ const parseAction = async (action: Action): Promise<MTMRAction> => {
   }
 
   if (action.action === "shellScript") {
+    const inPath = getInPath(action.executablePath);
+
     return {
       ...action,
-      executablePath: copyLibFile(action.executablePath),
+      executablePath: copyLibFile(inPath),
     };
   }
 
   if (action.action === "javaScript") {
-    const libPath = copyLibFile(action.actionJavaScript);
-
     return {
       ...action,
       action: "appleScript",
-      actionAppleScript: {
-        filePath: await createJsWrapper(libPath, false),
-      },
+      actionAppleScript: await parseJavaScriptSource(action.actionJavaScript),
     };
   }
 

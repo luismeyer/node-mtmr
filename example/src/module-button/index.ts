@@ -8,6 +8,7 @@ export const ModuleButton: ScriptTitledButton = {
   bordered: true,
   background: "#454545",
   refreshInterval: 1,
+  sourceType: "javaScript",
   jsSource: resolve(__dirname, "./source.js"),
   actions: [
     {

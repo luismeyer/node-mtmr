@@ -3,28 +3,19 @@ import { ScriptTitledButton } from "../typings/api";
 import { MTMRScriptTitledButton, MTMRSource } from "../typings/mtmr";
 import { copyLibFile } from "../lib";
 import { parseAlternativeImages } from "./image";
-import { parseApplescriptSource, parseSource } from "./source";
+import {
+  parseApplescriptSource,
+  parseShellScriptSource,
+  parseJavaScriptSource,
+} from "./source";
 
-type ButtonType = "appleScript" | "shellScript" | "javaScript";
-
-const destructType = (button: ScriptTitledButton): ButtonType => {
-  if ("appleScriptSource" in button) {
-    return "appleScript";
-  }
-
-  if ("shellScriptSource" in button) {
-    return "shellScript";
-  }
-
-  if ("jsSource" in button) {
-    return "javaScript";
-  }
-
-  throw new Error("Missing source for button: " + button.type);
-};
-
-const createType = (type: ButtonType): MTMRScriptTitledButton["type"] => {
-  if (type === "appleScript" || type === "javaScript") {
+const createType = (
+  button: ScriptTitledButton
+): MTMRScriptTitledButton["type"] => {
+  if (
+    button.sourceType === "appleScript" ||
+    button.sourceType === "javaScript"
+  ) {
     return "appleScriptTitledButton";
   }
 
@@ -32,26 +23,21 @@ const createType = (type: ButtonType): MTMRScriptTitledButton["type"] => {
 };
 
 const createSource = async (
-  type: ButtonType,
   button: ScriptTitledButton
 ): Promise<MTMRSource> => {
-  if (type === "appleScript" && button.appleScriptSource) {
+  if (button.sourceType === "appleScript") {
     return parseApplescriptSource(button.appleScriptSource);
   }
 
-  if (type === "shellScript" && button.shellScriptSource) {
-    return parseSource(button.shellScriptSource, copyLibFile);
+  if (button.sourceType === "shellScript") {
+    return parseShellScriptSource(button.shellScriptSource);
   }
 
-  if (type === "javaScript" && button.jsSource) {
-    const libPath = copyLibFile(button.jsSource);
-
-    return {
-      filePath: await createJsWrapper(
-        libPath,
-        Object.keys(button.alternativeImages ?? {}).length > 0
-      ),
-    };
+  if (button.sourceType === "javaScript") {
+    return parseJavaScriptSource(
+      button.jsSource,
+      Object.keys(button.alternativeImages ?? {}).length > 0
+    );
   }
 
   throw new Error("Missing Source");
@@ -59,13 +45,8 @@ const createSource = async (
 
 export const parseScriptTitledButton = async (
   button: ScriptTitledButton
-): Promise<MTMRScriptTitledButton> => {
-  const type = destructType(button);
-  const source = await createSource(type, button);
-
-  return {
-    type: createType(type),
-    source,
-    alternativeImages: parseAlternativeImages(button.alternativeImages),
-  };
-};
+): Promise<MTMRScriptTitledButton> => ({
+  type: createType(button),
+  source: await createSource(button),
+  alternativeImages: parseAlternativeImages(button.alternativeImages),
+});

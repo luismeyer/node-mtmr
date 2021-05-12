@@ -24,7 +24,7 @@ export const parse = async (item: Item): Promise<MTMRItem> => {
   }
 
   return {
-    ...baseItem,
     ...pureItem,
+    ...baseItem,
   };
 };

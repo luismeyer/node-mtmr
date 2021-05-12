@@ -1,7 +1,7 @@
 import copy from "copy-dir";
 import fs from "fs";
 import { glob } from "glob";
-import { resolve } from "path";
+import { join, resolve } from "path";
 import { Config } from "./config";
 
 const removeSubPath = (absolutePath: string, subpath: string) => {
@@ -31,7 +31,20 @@ export const getOutPath = (absolutePath: string): string => {
       : path;
   }
 
-  return Config.absoluteOutDir + path;
+  return join(Config.absoluteOutDir, path);
+};
+
+export const getInPath = (absolutePath: string) => {
+  const { tsCompilerOptions } = Config;
+
+  if (!tsCompilerOptions?.outDir) {
+    return absolutePath;
+  }
+
+  return absolutePath.replace(
+    tsCompilerOptions.outDir,
+    tsCompilerOptions.rootDir
+  );
 };
 
 export const setupOutPath = (absolutePath: string): string => {
@@ -95,8 +108,9 @@ export const compilerOptions = (): CompilerOptions | undefined => {
   const projectRoot = tsconfigPath.replace(configName, "");
 
   const { compilerOptions } = tsconfig;
+
   return {
-    outDir: compilerOptions.outdir
+    outDir: compilerOptions.outDir
       ? resolve(projectRoot, compilerOptions.outDir)
       : undefined,
     rootDir: resolve(projectRoot, compilerOptions.rootDir),

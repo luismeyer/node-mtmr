@@ -46,7 +46,9 @@ export const parseAlternativeImages = (
       const outPath = getOutPath(value.filePath);
 
       if (!existsSync(outPath)) {
-        throw new Error("Missing asset " + images[key]);
+        throw new Error(
+          `Error while parsing asset. Tried to find ${outPath} (based on ${images[key]})`
+        );
       }
 
       result[key] = {

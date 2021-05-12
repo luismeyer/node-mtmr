@@ -8,6 +8,7 @@ export const CustomButton: ScriptTitledButton = {
   bordered: true,
   background: "#454545",
   refreshInterval: 1,
+  sourceType: "javaScript",
   jsSource: resolve(__dirname, "./source.js"),
   image: {
     filePath: resolve(__dirname, "./assets/clock.png"),

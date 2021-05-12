@@ -1,22 +1,42 @@
 import { compileApplescriptFile } from "../apple/compile-script";
 import { MTMRSource } from "../typings/mtmr";
-import { setupOutPath } from "../lib";
+import { copyLibFile, getInPath, setupOutPath } from "../lib";
+import { Source } from "../typings/api";
+import { createJsWrapper } from "../apple/js-wrapper";
 
-export const parseApplescriptSource = (source: MTMRSource) =>
-  parseSource(source, (filePath: string) => {
-    const outPath = setupOutPath(filePath) + ".scpt";
-    return compileApplescriptFile(filePath, outPath);
-  });
-
-export const parseSource = async (
-  source: MTMRSource,
-  buildFunc: (filePath: string) => string | Promise<string>
+export const parseApplescriptSource = async (
+  source: MTMRSource
 ): Promise<MTMRSource> => {
   if ("filePath" in source) {
+    const inPath = getInPath(source.filePath);
+    const outPath = setupOutPath(inPath) + ".scpt";
+
     return {
-      filePath: await buildFunc(source.filePath),
+      filePath: await compileApplescriptFile(inPath, outPath),
     };
   }
 
   return source;
+};
+
+export const parseShellScriptSource = (source: Source): MTMRSource => {
+  if ("filePath" in source) {
+    const inPath = getInPath(source.filePath);
+    return {
+      filePath: copyLibFile(inPath),
+    };
+  }
+
+  return source;
+};
+
+export const parseJavaScriptSource = async (
+  jsSource: string,
+  withSplit: boolean = false
+): Promise<MTMRSource> => {
+  const libPath = copyLibFile(jsSource);
+
+  return {
+    filePath: await createJsWrapper(libPath, withSplit),
+  };
 };

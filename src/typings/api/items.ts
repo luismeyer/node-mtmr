@@ -34,14 +34,34 @@ export type StaticButton = BaseItem & {
   title: string;
 };
 
-export type ScriptTitledButton = BaseItem & {
+export type AppleScriptTitledButton = BaseItem & {
   type: "scriptTitledButton";
-  jsSource?: string;
-  appleScriptSource?: Source;
-  shellScriptSource?: Source;
+  sourceType: "appleScript";
+  appleScriptSource: Source;
   alternativeImages?: AlternativeImages;
   autoResize?: boolean;
 };
+
+export type JavaScriptTitledButton = BaseItem & {
+  type: "scriptTitledButton";
+  sourceType: "javaScript";
+  jsSource: string;
+  alternativeImages?: AlternativeImages;
+  autoResize?: boolean;
+};
+
+export type ShellScriptTitledButton = BaseItem & {
+  type: "scriptTitledButton";
+  sourceType: "shellScript";
+  shellScriptSource: Source;
+  alternativeImages?: AlternativeImages;
+  autoResize?: boolean;
+};
+
+export type ScriptTitledButton =
+  | AppleScriptTitledButton
+  | JavaScriptTitledButton
+  | ShellScriptTitledButton;
 
 export type Group = BaseItem & {
   type: "group";

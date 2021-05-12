@@ -63,9 +63,41 @@ import { saveItems } from "node-mtmr";
 saveItems(result, { force: true });
 ```
 
+### Utilities
+
+If you want to create a ScriptTitledButton with a jsSource you can use either the `createSourceScriptSync` or the `createSourceScript` function. These will handle your script result and hand them to MTMR.
+
+```ts
+createSourceScriptSync(() => {
+  const imageIdentifier = "inactive";
+  const buttonLabel = "Label";
+
+  return [buttonLabel, imageIdentifier];
+});
+```
+
+or async
+
+```ts
+createSourceScript(async () => {
+  const label = await func();
+  return label;
+});
+```
+
+If you your button needs a state make use of the state functions. They are storing your data in your computers ''/tmp/'' folder (so it might be deleted at some point):
+
+```ts
+const stateId = "counter";
+
+const count = stateValue<number>(stateId, 0);
+const setCount = stateFunction<number>(stateId);
+const [count, setCount] = state<number>(stateId);
+```
+
 ## Hints
 
-Instead of looking up the absolute path of your folder you can just use the node's path lib
+Instead of looking up the absolute path of your folder, you can just use node's path lib
 
 ```js
 absoluteOutDir: path.resolve(__dirname, "../mtmr");

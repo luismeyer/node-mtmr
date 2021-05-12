@@ -1,13 +1,5 @@
-import fs from "fs";
-import path from "path";
-import state from "./assets/state.json";
+import { state } from "node-mtmr";
 
-const newState = {
-  ...state,
-  active: !state.active,
-};
+const [active, setActive] = state<boolean>("custom", false);
 
-fs.writeFileSync(
-  path.resolve(__dirname, "./assets/state.json"),
-  JSON.stringify(newState)
-);
+setActive(!active);

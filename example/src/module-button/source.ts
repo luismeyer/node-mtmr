@@ -1,8 +1,9 @@
-import { createTsTitledScript } from "node-mtmr";
-import { someModuleFunction } from "./modules/module";
-import state from "./assets/state.json";
+import { createSourceScriptSync } from "node-mtmr";
+import { someModuleFunction, useState } from "./modules/module";
 
-createTsTitledScript(() => {
+createSourceScriptSync(() => {
+  const [state] = useState();
+
   const title = someModuleFunction(state.title);
 
   return title;

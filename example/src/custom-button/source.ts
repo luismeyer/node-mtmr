@@ -1,8 +1,9 @@
-import { createTsTitledScript } from "node-mtmr";
-import state from "./assets/state.json";
+import { createSourceScriptSync, stateValue } from "node-mtmr";
 
-createTsTitledScript(() => {
-  const res = state.active ? "active" : "inactive";
+createSourceScriptSync(() => {
+  const active = stateValue<boolean>("custom", false);
+  const imageIdentifier = active ? "active" : "inactive";
+  const buttonLabel = "Label";
 
-  return [res, res];
+  return [buttonLabel, imageIdentifier];
 });

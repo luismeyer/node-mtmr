@@ -1,6 +1,6 @@
-type TsTitledScriptResult = string | [string, string];
+type SourceScriptResult = string | [string, string];
 
-export const createTsTitledScript = (func: () => TsTitledScriptResult) => {
+export const createSourceScriptSync = (func: () => SourceScriptResult) => {
   const result = func();
 
   if (Array.isArray(result)) {
@@ -10,9 +10,7 @@ export const createTsTitledScript = (func: () => TsTitledScriptResult) => {
   }
 };
 
-export const createAsyncTsTitledScript = (
-  func: () => Promise<TsTitledScriptResult>
-) => {
+export const createSourceScript = (func: () => Promise<SourceScriptResult>) => {
   func().then((result) => {
     if (Array.isArray(result)) {
       console.log(`${result[0]},${result[1]}`);

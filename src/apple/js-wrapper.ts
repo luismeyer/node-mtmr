@@ -1,6 +1,8 @@
-import { clearAbsoluteOutPath } from "../utils/lib";
-import { nodePath } from "../utils/node";
+import { clearAbsoluteOutPath } from "../lib";
+
 import { compileApplescriptString } from "./compile-script";
+
+const { execPath } = process;
 
 const ARRAY_SPLIT = `
 on split(theString, theDelimiter)
@@ -12,16 +14,16 @@ on split(theString, theDelimiter)
 end split
 `;
 
-export const createJsWrapper = (libPath: string, needsSplit?: boolean) => {
+export const createJsWrapper = (scriptPath: string, needsSplit?: boolean) => {
   const script = `
     ${needsSplit ? ARRAY_SPLIT : ""}
 
-    set result to (do shell script "${nodePath()}" & " " & "${libPath}")
+    set result to (do shell script "${execPath}" & " " & "${scriptPath}")
  
     return ${needsSplit ? 'split(result, ",")' : "result"}
   `;
 
-  const outputPath = libPath + ".scpt";
+  const outputPath = scriptPath + ".scpt";
   clearAbsoluteOutPath(outputPath);
 
   return compileApplescriptString(script, outputPath);

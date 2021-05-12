@@ -1,7 +1,7 @@
 import { exec } from "child_process";
 import { writeFileSync } from "fs";
 
-const createTmpFileName = (fileExtension: string): string => {
+const tempFilePath = (fileExtension: string): string => {
   const filename = new Date().toISOString().replace(/[-:.]/g, "");
   const randomNumber = Math.floor(Math.random() * (10000 + 1));
 
@@ -9,7 +9,7 @@ const createTmpFileName = (fileExtension: string): string => {
 };
 
 const createTempScript = (script: string): string => {
-  const tmpPath = createTmpFileName("applescript");
+  const tmpPath = tempFilePath("applescript");
 
   writeFileSync(tmpPath, script);
 
@@ -20,7 +20,7 @@ export const compileApplescriptFile = (
   scriptPath: string,
   outputPath?: string
 ): Promise<string> => {
-  const out = outputPath ?? createTmpFileName("scpt");
+  const out = outputPath ?? tempFilePath("scpt");
 
   return new Promise((resolve, reject) => {
     exec(`osacompile -o ${out} ${scriptPath}`, (err) => {

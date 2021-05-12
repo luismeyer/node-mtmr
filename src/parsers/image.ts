@@ -1,8 +1,8 @@
 import { existsSync } from "fs";
 import { MTMRAlternativeImages, MTMRImage } from "../typings/mtmr";
-import { getOutPath } from "../utils/lib";
+import { getOutPath } from "../lib";
 
-export const parseImage = (image: MTMRImage): MTMRImage => {
+export const parseImage = (image?: MTMRImage): MTMRImage | undefined => {
   if (!image) {
     return;
   }
@@ -11,7 +11,9 @@ export const parseImage = (image: MTMRImage): MTMRImage => {
     const outPath = getOutPath(image.filePath);
 
     if (!existsSync(outPath)) {
-      throw new Error("Missing asset " + image);
+      throw new Error(
+        `Error while parsing asset. Tried to find ${outPath} (based on ${image.filePath})`
+      );
     }
 
     return {
@@ -23,8 +25,8 @@ export const parseImage = (image: MTMRImage): MTMRImage => {
 };
 
 export const parseAlternativeImages = (
-  images: MTMRAlternativeImages
-): MTMRAlternativeImages => {
+  images?: MTMRAlternativeImages
+): MTMRAlternativeImages | undefined => {
   if (!images) {
     return;
   }

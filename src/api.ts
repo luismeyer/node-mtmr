@@ -1,20 +1,26 @@
-import { existsSync, writeFileSync } from "fs";
-import { Configuration, initConfig } from "./config";
+import { existsSync, mkdirSync, rmdirSync, rmSync, writeFileSync } from "fs";
+import { Config, ConfigurationOptions, initConfig } from "./config";
 import { parse } from "./parsers";
 import { parseAssets } from "./parsers/assets";
+import { parseModules } from "./parsers/modules";
 import { Item } from "./typings/api";
 import { MTMRItem } from "./typings/mtmr";
-import { clearOutDir } from "./utils/lib";
-import { loggerError, loggerInfo } from "./utils/logging";
+import { loggerError, loggerInfo } from "./logging";
 
 const { HOME } = process.env;
 
 const parseItems = async (items: Item[]) => {
-  clearOutDir();
+  const outDir = Config.absoluteOutDir;
+  rmSync(outDir, { recursive: true, force: true });
+  mkdirSync(outDir);
+
   loggerInfo("Cleared outDir...");
 
   parseAssets();
   loggerInfo("Parsed assets...");
+
+  parseModules();
+  loggerInfo("Parsed modules...");
 
   const result = await Promise.all(items.map(parse));
   loggerInfo("Parsed items...");
@@ -22,7 +28,7 @@ const parseItems = async (items: Item[]) => {
   return result;
 };
 
-export const createParse = (config: Configuration) => {
+export const createParse = (config: ConfigurationOptions) => {
   initConfig(config);
   loggerInfo("Initiated ts-mtmr...");
 

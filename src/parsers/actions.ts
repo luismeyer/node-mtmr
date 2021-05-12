@@ -1,7 +1,7 @@
 import { createJsWrapper } from "../apple/js-wrapper";
 import { Action } from "../typings/api";
 import { MTMRAction } from "../typings/mtmr";
-import { copyLibFile } from "../utils/lib";
+import { copyLibFile } from "../lib";
 import { parseApplescriptSource } from "./source";
 
 const parseAction = async (action: Action): Promise<MTMRAction> => {
@@ -34,7 +34,9 @@ const parseAction = async (action: Action): Promise<MTMRAction> => {
   return action;
 };
 
-export const parseActions = (actions: Action[]): Promise<MTMRAction[]> => {
+export const parseActions = (
+  actions?: Action[]
+): Promise<MTMRAction[]> | undefined => {
   if (!actions) {
     return;
   }

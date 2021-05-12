@@ -1,10 +1,14 @@
 import glob from "glob";
-import { getAssetsDirName } from "../config";
-import { copyLibFile } from "../utils/lib";
+import { Config } from "../config";
+import { copyLibFile } from "../lib";
 
 export const parseAssets = () => {
-  const files = glob.sync(`**/${getAssetsDirName()}/`, {
-    ignore: "**/node_modules/**",
+  const outDir = Config.tsCompilerOptions
+    ? `${Config.tsCompilerOptions.outDir}/**`
+    : "";
+
+  const files = glob.sync(`**/${Config.assetsDirName}/`, {
+    ignore: ["**/node_modules/**", outDir],
     absolute: true,
   });
 

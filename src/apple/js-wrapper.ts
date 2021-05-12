@@ -12,16 +12,16 @@ on split(theString, theDelimiter)
 end split
 `;
 
-export const createJsWrapper = (libPath: string, needsSplit?: boolean) => {
+export const createJsWrapper = (scriptPath: string, needsSplit?: boolean) => {
   const script = `
     ${needsSplit ? ARRAY_SPLIT : ""}
 
-    set result to (do shell script "${nodePath()}" & " " & "${libPath}")
+    set result to (do shell script "${nodePath()}" & " " & "${scriptPath}")
  
     return ${needsSplit ? 'split(result, ",")' : "result"}
   `;
 
-  const outputPath = libPath + ".scpt";
+  const outputPath = scriptPath + ".scpt";
   clearAbsoluteOutPath(outputPath);
 
   return compileApplescriptString(script, outputPath);

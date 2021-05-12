@@ -9,6 +9,8 @@ For further documentation have a look at the original [repo](https://github.com/
 
 ## Installation
 
+Here you find the [NPM Page](https://www.npmjs.com/package/node-mtmr).
+
 ```bash
 npm i node-mtmr
 ```
@@ -22,8 +24,7 @@ yarn add node-mtmr
 ## Setup
 
 A working example can be found [here](./example).
-
-IMPORTANT: Make sure you have no "outDir" configured in your tsconfig. Otherwise the path"s are messed up!!!
+IMPORTANT: Make sure your entry point is in the root of your src directory. This is needed since we set the glob cwd to the require.main path.
 
 ### Initialize parse
 

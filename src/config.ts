@@ -1,26 +1,27 @@
-export type Configuration = {
+import { compilerOptions } from "./lib";
+
+export type ConfigurationOptions = {
   absoluteOutDir: string;
-  assetsDirName: string;
+  assetsDirName?: string;
+  modulesDirName?: string;
   loggingEnabled?: boolean;
 };
 
-let Config: Configuration = {
+export let Config = {
   absoluteOutDir: "",
-  assetsDirName: "",
+  assetsDirName: "assets",
+  modulesDirName: "modules",
   loggingEnabled: true,
+  tsCompilerOptions: compilerOptions(),
 };
 
 const validateConfig = () => {
-  if (!getOutDir()) {
+  if (!Config.absoluteOutDir) {
     throw new Error("Missing absolute outDir");
-  }
-
-  if (!getAssetsDirName()) {
-    throw new Error("Missing absolute srcDir");
   }
 };
 
-export const initConfig = (newConfig: Configuration) => {
+export const initConfig = (newConfig: ConfigurationOptions) => {
   Config = {
     ...Config,
     ...newConfig,
@@ -28,9 +29,3 @@ export const initConfig = (newConfig: Configuration) => {
 
   validateConfig();
 };
-
-export const getOutDir = () => Config.absoluteOutDir;
-
-export const getAssetsDirName = () => Config.assetsDirName;
-
-export const getLoggingEnabled = () => Config.loggingEnabled;

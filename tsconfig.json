@@ -11,7 +11,8 @@
     "rootDir": "src",
     "incremental": true,
     "resolveJsonModule": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "strictNullChecks": true
   },
   "include": ["src/"]
 }

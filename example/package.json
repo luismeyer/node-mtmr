@@ -4,8 +4,9 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "build": "tsc && node src/index.js",
-    "watch": "tsc -w & chokidar 'src' -c 'node src/index.js'",
+    "build:dist": "tsc && node dist/index.js",
+    "build:src": "tsc && node src/index.js",
+    "watch": "tsc -w & chokidar 'src' -c 'node dist/index.js'",
     "clean": "rm tsconfig.tsbuildinfo && rm -rf src/**/*.js && yarn"
   },
   "dependencies": {

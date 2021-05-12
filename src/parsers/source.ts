@@ -1,6 +1,6 @@
 import { compileApplescriptFile } from "../apple/compile-script";
 import { MTMRSource } from "../typings/mtmr";
-import { setupOutPath } from "../utils/lib";
+import { setupOutPath } from "../lib";
 
 export const parseApplescriptSource = (source: MTMRSource) =>
   parseSource(source, (filePath: string) => {

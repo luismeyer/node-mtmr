@@ -1,7 +1,7 @@
 import { createJsWrapper } from "../apple/js-wrapper";
 import { ScriptTitledButton } from "../typings/api";
 import { MTMRScriptTitledButton, MTMRSource } from "../typings/mtmr";
-import { copyLibFile } from "../utils/lib";
+import { copyLibFile } from "../lib";
 import { parseAlternativeImages } from "./image";
 import { parseApplescriptSource, parseSource } from "./source";
 
@@ -35,15 +35,15 @@ const createSource = async (
   type: ButtonType,
   button: ScriptTitledButton
 ): Promise<MTMRSource> => {
-  if (type === "appleScript") {
+  if (type === "appleScript" && button.appleScriptSource) {
     return parseApplescriptSource(button.appleScriptSource);
   }
 
-  if (type === "shellScript") {
+  if (type === "shellScript" && button.shellScriptSource) {
     return parseSource(button.shellScriptSource, copyLibFile);
   }
 
-  if (type === "javaScript") {
+  if (type === "javaScript" && button.jsSource) {
     const libPath = copyLibFile(button.jsSource);
 
     return {
@@ -53,6 +53,8 @@ const createSource = async (
       ),
     };
   }
+
+  throw new Error("Missing Source");
 };
 
 export const parseScriptTitledButton = async (

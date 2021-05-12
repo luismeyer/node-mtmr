@@ -24,7 +24,6 @@ yarn add node-mtmr
 ## Setup
 
 A working example can be found [here](./example).
-IMPORTANT: Make sure your entry point is in the root of your src directory. This is needed since we set the glob cwd to the require.main path.
 
 ### Initialize parse
 
@@ -36,13 +35,15 @@ import { createParse } from "node-mtmr";
 const parse = createParse({
   absoluteOutDir: "/Users/username/my-mtmr-config",
   assetsDirName: "assets",
+  modulesDirName: "modules",
   loggingEnabled: true,
 });
 ```
 
 1. "absoluteOutDir" is the output path for the script and assets
 2. "assetsDirName" is the name of all asset directories. On parse the lib will copy all asset directories into the "absoluteOutDir"
-3. "loggingEnabled" configures the logging output
+3. "modulesDirName" is the name of all module directories. On parse the lib will copy all module directories into the "absoluteOutDir"
+4. "loggingEnabled" configures the logging output
 
 ### Execute parse
 

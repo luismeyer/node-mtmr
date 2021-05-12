@@ -48,14 +48,7 @@ export const clearAbsoluteOutPath = (absoluteOutPath: string) => {
     return;
   }
 
-  const stats = fs.statSync(absoluteOutPath);
-  if (stats.isFile()) {
-    fs.rmSync(absoluteOutPath);
-  }
-
-  if (stats.isDirectory()) {
-    fs.rmSync(absoluteOutPath, { recursive: true, force: true });
-  }
+  fs.rmSync(absoluteOutPath, { recursive: true, force: true });
 };
 
 export const copyLibFile = (absolutePath: string) => {
@@ -81,7 +74,7 @@ const fixMissingPaths = (absolutePath: string) => {
     });
 };
 
-type CompilerOptions = {
+export type CompilerOptions = {
   outDir?: string;
   rootDir: string;
 };

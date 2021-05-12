@@ -1,4 +1,4 @@
-import { compilerOptions } from "./lib";
+import { CompilerOptions, compilerOptions } from "./lib";
 
 export type ConfigurationOptions = {
   absoluteOutDir: string;
@@ -7,12 +7,20 @@ export type ConfigurationOptions = {
   loggingEnabled?: boolean;
 };
 
-export let Config = {
+type Configuration = {
+  absoluteOutDir: string;
+  assetsDirName: string;
+  modulesDirName: string;
+  loggingEnabled: boolean;
+  tsCompilerOptions?: CompilerOptions;
+};
+
+export let Config: Configuration = {
   absoluteOutDir: "",
   assetsDirName: "assets",
   modulesDirName: "modules",
   loggingEnabled: true,
-  tsCompilerOptions: compilerOptions(),
+  tsCompilerOptions: undefined,
 };
 
 const validateConfig = () => {
@@ -25,6 +33,7 @@ export const initConfig = (newConfig: ConfigurationOptions) => {
   Config = {
     ...Config,
     ...newConfig,
+    tsCompilerOptions: compilerOptions(),
   };
 
   validateConfig();

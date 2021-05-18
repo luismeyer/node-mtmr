@@ -1,7 +1,8 @@
 import copy from "copy-dir";
 import fs from "fs";
+import path from "path";
 import { glob } from "glob";
-import { join, resolve } from "path";
+import { join, dirname } from "path";
 import { Config } from "./config";
 
 const removeSubPath = (absolutePath: string, subpath: string) => {
@@ -24,7 +25,9 @@ export const getOutPath = (absolutePath: string): string => {
 
   const { tsCompilerOptions } = Config;
   if (tsCompilerOptions) {
-    path = removeSubPath(path, tsCompilerOptions.rootDir);
+    path = tsCompilerOptions.rootDir
+      ? removeSubPath(path, tsCompilerOptions.rootDir)
+      : path;
 
     path = tsCompilerOptions.outDir
       ? removeSubPath(path, tsCompilerOptions.outDir)
@@ -37,7 +40,7 @@ export const getOutPath = (absolutePath: string): string => {
 export const getInPath = (absolutePath: string): string => {
   const { tsCompilerOptions } = Config;
 
-  if (!tsCompilerOptions?.outDir) {
+  if (!tsCompilerOptions?.outDir || !tsCompilerOptions?.rootDir) {
     return absolutePath;
   }
 
@@ -49,9 +52,14 @@ export const getInPath = (absolutePath: string): string => {
 
 export const setupOutPath = (absolutePath: string): string => {
   const outPath = getOutPath(absolutePath);
+  const isFile = Boolean(path.extname(outPath));
 
   clearAbsoluteOutPath(outPath);
-  fixMissingPaths(outPath);
+  fs.mkdirSync(dirname(outPath), { recursive: true });
+
+  if (!isFile) {
+    fs.mkdirSync(outPath);
+  }
 
   return outPath;
 };
@@ -72,30 +80,15 @@ export const copyLibFile = (absolutePath: string): string => {
   return outPath;
 };
 
-const fixMissingPaths = (absolutePath: string) => {
-  let fullPath = "";
-
-  absolutePath
-    .split("/")
-    .filter(Boolean)
-    .forEach((path) => {
-      fullPath = fullPath + "/" + path;
-
-      if (!fs.existsSync(fullPath) && !path.includes(".")) {
-        fs.mkdirSync(fullPath);
-      }
-    });
-};
-
 export type CompilerOptions = {
   outDir?: string;
-  rootDir: string;
+  rootDir?: string;
 };
 
 export const compilerOptions = (): CompilerOptions | undefined => {
   const configName = "tsconfig.json";
 
-  const [tsconfigPath] = glob.sync(`**/${configName}`, {
+  const [tsconfigPath] = glob.sync(configName, {
     absolute: true,
     ignore: ["**/node_modules/**"],
   });
@@ -105,14 +98,16 @@ export const compilerOptions = (): CompilerOptions | undefined => {
   }
 
   const tsconfig = JSON.parse(fs.readFileSync(tsconfigPath).toString());
-  const projectRoot = tsconfigPath.replace(configName, "");
 
-  const { compilerOptions } = tsconfig;
+  if (!tsconfig.compilerOptions) {
+    return;
+  }
+
+  const projectRoot = tsconfigPath.replace(configName, "");
+  const { rootDir, outDir } = tsconfig.compilerOptions;
 
   return {
-    outDir: compilerOptions.outDir
-      ? resolve(projectRoot, compilerOptions.outDir)
-      : undefined,
-    rootDir: resolve(projectRoot, compilerOptions.rootDir),
+    outDir: outDir && join(projectRoot, outDir),
+    rootDir: rootDir && join(projectRoot, rootDir),
   };
 };

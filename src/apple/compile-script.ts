@@ -1,12 +1,9 @@
 import { exec } from "child_process";
 import { writeFileSync } from "fs";
+import { randomName } from "../utils";
 
-const tempFilePath = (fileExtension: string): string => {
-  const filename = new Date().toISOString().replace(/[-:.]/g, "");
-  const randomNumber = Math.floor(Math.random() * (10000 + 1));
-
-  return `/tmp/${filename + randomNumber}.${fileExtension}`;
-};
+const tempFilePath = (fileExtension: string): string =>
+  `/tmp/${randomName()}.${fileExtension}`;
 
 const createTempScript = (script: string): string => {
   const tmpPath = tempFilePath("applescript");

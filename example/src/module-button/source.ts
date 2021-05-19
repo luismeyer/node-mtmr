@@ -1,5 +1,5 @@
 import { createSourceScriptSync, stateValue } from "node-mtmr";
-import { someModuleFunction, State } from "./modules/module";
+import { someModuleFunction, State } from "./module";
 
 createSourceScriptSync(() => {
   const state = stateValue<State>("module-button", {

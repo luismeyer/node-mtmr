@@ -16,6 +16,10 @@ export type InlineSource = {
   inline: string;
 };
 
+export type JsInlineSource = {
+  inline: () => void;
+};
+
 export type FilePathSource = {
   filePath: string;
 };
@@ -25,3 +29,4 @@ export type Base64Source = {
 };
 
 export type Source = InlineSource | FilePathSource | Base64Source;
+export type JsSource = FilePathSource | JsInlineSource;

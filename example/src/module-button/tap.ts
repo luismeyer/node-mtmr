@@ -1,4 +1,4 @@
-import { anotherModuleFunction, State } from "./modules/module";
+import { anotherModuleFunction, State } from "./module";
 import { state as useState } from "node-mtmr";
 
 const [state, setState] = useState<State>("module-button");

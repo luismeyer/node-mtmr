@@ -14,6 +14,6 @@ export const parseBaseItem = async (
     bordered: baseItem.bordered,
     refreshInterval: baseItem.refreshInterval,
     image: parseImage(baseItem.image),
-    actions: await parseActions(baseItem.actions),
+    actions: await parseActions(baseItem),
   };
 };

@@ -1,5 +1,5 @@
 import { Action } from "./actions";
-import { AlternativeImages, Image, Source } from "./assets";
+import { AlternativeImages, Image, JsSource, Source } from "./assets";
 
 export type BaseItem = {
   align?: "left" | "center" | "right";
@@ -10,6 +10,7 @@ export type BaseItem = {
   image?: Image;
   actions?: Action[];
   refreshInterval?: number;
+  currentPath?: string;
 };
 
 export type Gesture = BaseItem & {
@@ -45,7 +46,7 @@ export type AppleScriptTitledButton = BaseItem & {
 export type JavaScriptTitledButton = BaseItem & {
   type: "scriptTitledButton";
   sourceType: "javaScript";
-  jsSource: string;
+  jsSource: JsSource;
   alternativeImages?: AlternativeImages;
   autoResize?: boolean;
 };

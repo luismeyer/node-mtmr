@@ -2,7 +2,6 @@ import { existsSync, mkdirSync, rmSync, writeFileSync } from "fs";
 import { Config, ConfigurationOptions, initConfig } from "./config";
 import { parse } from "./parsers";
 import { parseAssets } from "./parsers/assets";
-import { parseModules } from "./parsers/modules";
 import { Item } from "./typings/api";
 import { MTMRItem } from "./typings/mtmr";
 import { loggerError, loggerInfo } from "./logging";
@@ -21,9 +20,6 @@ const parseItems: Parse = async (items) => {
   parseAssets();
   loggerInfo("Parsed assets...");
 
-  parseModules();
-  loggerInfo("Parsed modules...");
-
   const result = await Promise.all(items.map(parse));
   loggerInfo("Parsed items...");
 
@@ -34,7 +30,7 @@ type CreateParse = (config: ConfigurationOptions) => Parse;
 
 export const createParse: CreateParse = (config) => {
   initConfig(config);
-  loggerInfo("Initiated ts-mtmr...");
+  loggerInfo("Initiated node-mtmr...");
 
   return parseItems;
 };

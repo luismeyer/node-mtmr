@@ -32,10 +32,11 @@ const createSource = async (
   }
 
   if (button.sourceType === "javaScript") {
-    return parseJavaScriptSource(
-      button.jsSource,
-      Object.keys(button.alternativeImages ?? {}).length > 0
-    );
+    return parseJavaScriptSource({
+      source: button.jsSource,
+      withSplit: Object.keys(button.alternativeImages ?? {}).length > 0,
+      buttonPath: button.currentPath,
+    });
   }
 
   throw new Error("Missing Source");

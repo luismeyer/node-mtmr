@@ -1,4 +1,4 @@
-import { Source } from "./assets";
+import { JsSource, Source } from "./assets";
 
 export type ActionTrigger = "singleTap" | "doubleTap" | "tripleTap" | "longTap";
 
@@ -36,7 +36,7 @@ export type OpenUrlAction = {
 export type JavaScriptAction = {
   trigger: ActionTrigger;
   action: "javaScript";
-  actionJavaScript: string;
+  actionJavaScript: JsSource;
 };
 
 export type Action =

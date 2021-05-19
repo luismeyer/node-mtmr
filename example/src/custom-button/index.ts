@@ -1,7 +1,7 @@
-import { ScriptTitledButton } from "node-mtmr";
+import { createItem, ScriptTitledButton } from "node-mtmr";
 import { resolve } from "path";
 
-export const CustomButton: ScriptTitledButton = {
+export const CustomButton: ScriptTitledButton = createItem({
   align: "left",
   type: "scriptTitledButton",
   title: "00:00",
@@ -9,7 +9,9 @@ export const CustomButton: ScriptTitledButton = {
   background: "#454545",
   refreshInterval: 1,
   sourceType: "javaScript",
-  jsSource: resolve(__dirname, "./source.js"),
+  jsSource: {
+    filePath: resolve(__dirname, "./source.js"),
+  },
   image: {
     filePath: resolve(__dirname, "./assets/clock.png"),
   },
@@ -17,7 +19,9 @@ export const CustomButton: ScriptTitledButton = {
     {
       action: "javaScript",
       trigger: "singleTap",
-      actionJavaScript: resolve(__dirname, "./tap.js"),
+      actionJavaScript: {
+        filePath: resolve(__dirname, "./tap.js"),
+      },
     },
   ],
   alternativeImages: {
@@ -28,4 +32,4 @@ export const CustomButton: ScriptTitledButton = {
       filePath: resolve(__dirname, "./assets/clock-red.png"),
     },
   },
-};
+});

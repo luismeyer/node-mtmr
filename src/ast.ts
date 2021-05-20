@@ -1,50 +1,38 @@
-import { parse } from "acorn";
-import { simple } from "acorn-walk";
-import { generate } from "astring";
-import {
-  ArrowFunctionExpressionNode,
-  CallExpressionNode,
-  CustomNode,
-  FunctionDeclarationNode,
-  IdentifierNode,
-  LiteralNode,
-  ProgramNode,
-  VariableDeclarationNode,
-  VariableDeclaratorNode,
-} from "./typings/ast";
+import { parse, traverse } from "@babel/core";
+import * as t from "@babel/types";
+import generate from "@babel/generator";
 import { randomName } from "./utils";
-
-const ecmaVersion = 2020;
 
 type ParsedImport = {
   source: string;
   arg: string;
-  node: CustomNode;
+  node: t.VariableDeclarator;
   isNodeModule: boolean;
 };
 
 export const imports = (src: string): ParsedImport[] => {
-  const rootNode = parse(src, { ecmaVersion });
+  const rootNode = parse(src);
   let result: ParsedImport[] = [];
 
-  simple(rootNode, {
-    VariableDeclarator: (node: VariableDeclaratorNode) => {
+  traverse(rootNode, {
+    VariableDeclarator: function (path) {
       if (
-        node.init.type === "CallExpression" &&
-        node.init.callee.type === "Identifier" &&
-        node.init.callee.name === "require"
+        path.node.init &&
+        t.isCallExpression(path.node.init) &&
+        t.isIdentifier(path.node.init.callee) &&
+        path.node.init.callee.name === "require"
       ) {
-        const arg = node.init.arguments
-          .filter((arg) => arg.type === "Literal")
-          .map((literal: LiteralNode) => literal.value)
+        const arg = path.node.init.arguments
+          .filter((arg): arg is t.StringLiteral => t.isStringLiteral(arg))
+          .map((literal) => literal.value)
           .join("");
 
         result = [
           ...result,
           {
             arg,
-            node,
-            source: node.loc?.source ?? "",
+            node: path.node,
+            source: src.slice(path.node.start ?? 0, path.node.end ?? 0),
             isNodeModule: arg.startsWith("."),
           },
         ];
@@ -56,11 +44,11 @@ export const imports = (src: string): ParsedImport[] => {
 };
 
 export const identifiers = (src: string): Set<string> => {
-  const rootNode = parse(src, { ecmaVersion });
+  const rootNode = parse(src);
   const result = new Set<string>();
 
-  simple(rootNode, {
-    Identifier: (node: IdentifierNode) => {
+  traverse(rootNode, {
+    Identifier: ({ node }) => {
       result.add(node.name);
     },
   });
@@ -71,22 +59,22 @@ export const identifiers = (src: string): Set<string> => {
 export type ParsedDefinition = {
   name?: string;
   names?: string[];
-  node: CustomNode;
+  node: t.Statement;
 };
 
 export const definitions = (src: string): ParsedDefinition[] => {
-  const rootNode = parse(src, { ecmaVersion });
+  const rootNode = parse(src);
   const variables: ParsedDefinition[] = [];
 
-  simple(rootNode, {
-    VariableDeclaration: (node: VariableDeclarationNode): void => {
+  traverse(rootNode, {
+    VariableDeclaration: ({ node }): void => {
       node.declarations.forEach((declerationNode) => {
-        if (declerationNode.type !== "VariableDeclarator") {
+        if (!t.isVariableDeclarator(declerationNode)) {
           return;
         }
 
         // Normal variable definitions
-        if (declerationNode.id.type === "Identifier") {
+        if (t.isIdentifier(declerationNode.id)) {
           variables.push({
             name: declerationNode.id.name,
             node,
@@ -94,11 +82,12 @@ export const definitions = (src: string): ParsedDefinition[] => {
         }
 
         // Destructured definitions
-        if (declerationNode.id.type === "ObjectPattern") {
+        if (t.isObjectPattern(declerationNode.id)) {
           const names = declerationNode.id.properties
-            .map((prop) => prop.value)
+            .filter((prop) => t.isObjectProperty(prop))
+            .map((prop: t.ObjectProperty) => prop.value)
             .filter((value) => value.type === "Identifier")
-            .map((value: IdentifierNode) => value.name);
+            .map((value: t.Identifier) => value.name);
 
           variables.push({
             names,
@@ -107,10 +96,10 @@ export const definitions = (src: string): ParsedDefinition[] => {
         }
 
         // Destructured Array definitions
-        if (declerationNode.id.type === "ArrayPattern") {
+        if (t.isArrayPattern(declerationNode.id)) {
           const names = declerationNode.id.elements
-            .filter((element) => element.type === "Identifier")
-            .map((element: IdentifierNode) => element.name);
+            .filter((element) => element && element.type === "Identifier")
+            .map((element: t.Identifier) => element.name);
 
           variables.push({
             names,
@@ -119,8 +108,8 @@ export const definitions = (src: string): ParsedDefinition[] => {
         }
       });
     },
-    FunctionDeclaration: (node: FunctionDeclarationNode): void => {
-      if (node.id.type === "Identifier") {
+    FunctionDeclaration: ({ node }): void => {
+      if (node.id?.type === "Identifier") {
         variables.push({
           name: node.id.name,
           node,
@@ -133,76 +122,31 @@ export const definitions = (src: string): ParsedDefinition[] => {
 };
 
 export const createNamedLambda = (
-  lambdaExpression: ArrowFunctionExpressionNode,
+  lambdaExpression: t.ArrowFunctionExpression,
   lambdaName: string
-): VariableDeclarationNode => ({
-  type: "VariableDeclaration",
-  start: 0,
-  end: 0,
-  declarations: [
-    {
-      type: "VariableDeclarator",
-      start: 0,
-      end: 0,
-      id: {
-        type: "Identifier",
-        start: 0,
-        end: 0,
-        name: lambdaName,
-      },
-      init: lambdaExpression,
-    },
-  ],
-  kind: "const",
-});
+): t.VariableDeclaration =>
+  t.variableDeclaration("const", [
+    t.variableDeclarator(t.identifier(lambdaName), lambdaExpression),
+  ]);
 
-export const createLambdaCall = (lambdaName: string): CallExpressionNode => ({
-  type: "CallExpression",
-  start: 0,
-  end: 0,
-  callee: {
-    type: "Identifier",
-    start: 0,
-    end: 0,
-    name: lambdaName,
-  },
-  arguments: [],
-  optional: false,
-});
+export const createLambdaCall = (lambdaName: string): t.ExpressionStatement =>
+  t.expressionStatement(t.callExpression(t.identifier(lambdaName), []));
 
-export const createProgram = (nodes: CustomNode[]): ProgramNode => ({
-  type: "Program",
-  sourceType: "script",
-  start: 0,
-  end: 0,
-  body: nodes,
-});
-
-export const prependNodes = (
-  node: CustomNode,
-  newNodes: CustomNode[]
-): void => {
-  if ("body" in node) {
-    node.body = [...newNodes, ...node.body];
-  }
+export const prependNodes = (node: t.File, newNodes: t.Statement[]): void => {
+  node.program.body = [...newNodes, ...node.program.body];
 };
 
-export const callUnnamedLambda = (node: CustomNode): void => {
-  if (node.type !== "Program") {
-    return;
-  }
+export const callUnnamedLambda = (node: t.File): void => {
+  let calls: t.ExpressionStatement[] = [];
 
-  let calls: CallExpressionNode[] = [];
-
-  node.body = node.body.map((bodyNode) => {
+  node.program.body = node.program.body.map((bodyNode) => {
     if (
       bodyNode.type === "ExpressionStatement" &&
-      bodyNode.expression.type === "ArrowFunctionExpression" &&
-      !bodyNode.expression.id
+      bodyNode.expression.type === "ArrowFunctionExpression"
     ) {
       const lambdaName = "var" + randomName();
       const lambda = createNamedLambda(bodyNode.expression, lambdaName);
-      const lambdaCall: CustomNode = createLambdaCall(lambdaName);
+      const lambdaCall = createLambdaCall(lambdaName);
 
       calls = [...calls, lambdaCall];
       return lambda;
@@ -211,13 +155,13 @@ export const callUnnamedLambda = (node: CustomNode): void => {
     return bodyNode;
   });
 
-  node.body = [...node.body, ...calls];
+  node.program.body = [...node.program.body, ...calls];
 };
 
 const findMissingDependencyNodes = (
   fcSrc: string,
   fileSrc: string
-): CustomNode[] => {
+): t.Statement[] => {
   // find all definitions that aren't in the fc scope
   const defs = definitions(fileSrc);
 
@@ -250,10 +194,10 @@ const findMissingDependencyNodes = (
 };
 
 export const fixMissingDependencyNodes = (
-  outNodes: CustomNode[],
+  outNodes: t.Statement[],
   fcSrc: string,
   fileSrc: string
-): CustomNode[] => {
+): t.Statement[] => {
   const missingNodes = findMissingDependencyNodes(fcSrc, fileSrc);
 
   if (missingNodes.length === 0) {
@@ -262,7 +206,7 @@ export const fixMissingDependencyNodes = (
 
   return fixMissingDependencyNodes(
     [...missingNodes, ...outNodes],
-    generate(createProgram(missingNodes)),
+    generate(t.program(missingNodes)).code,
     fileSrc
   );
 };

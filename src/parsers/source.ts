@@ -1,5 +1,5 @@
-import { parse } from "acorn";
-import { generate } from "astring";
+import { parse } from "@babel/parser";
+import generate from "@babel/generator";
 import { readFileSync, writeFileSync } from "fs";
 import { basename, dirname, extname, join, resolve } from "path";
 import { compileApplescriptFile } from "../apple/compile-script";
@@ -12,7 +12,6 @@ import {
 } from "../ast";
 import { copyLibFile, getInPath, setupOutPath } from "../lib";
 import { JsSource, Source } from "../typings/api";
-import { CustomNode } from "../typings/ast";
 import { MTMRSource } from "../typings/mtmr";
 import { randomName } from "../utils";
 
@@ -87,7 +86,7 @@ export const parseJavaScriptSource = async ({
     // that are needed inside the function
     const outNodes = fixMissingDependencyNodes([], fc, fileSourceWithoutFc);
 
-    const node = parse(fc, { ecmaVersion: 2020 }) as CustomNode;
+    const node = parse(fc);
     prependNodes(node, outNodes);
     callUnnamedLambda(node);
 
@@ -96,7 +95,7 @@ export const parseJavaScriptSource = async ({
     const fileName = `${randomName()}.${basename(buttonPath)}`;
     const libPath = setupOutPath(join(dir, fileName));
 
-    const output = generate(node);
+    const output = generate(node).code;
 
     writeFileSync(libPath, output);
 

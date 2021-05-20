@@ -1,14 +1,19 @@
 import { existsSync } from "fs";
 import { MTMRAlternativeImages, MTMRImage } from "../typings/mtmr";
-import { copyLibFile, getInPath } from "../lib";
+import { copyLibFile, getInPath, makeAbsolute } from "../lib";
 
-export const parseImage = (image?: MTMRImage): MTMRImage | undefined => {
+export const parseImage = (
+  image?: MTMRImage,
+  itemPath?: string
+): MTMRImage | undefined => {
   if (!image) {
     return;
   }
 
   if ("filePath" in image) {
-    const inPath = getInPath(image.filePath);
+    const absolutePath = makeAbsolute(image.filePath, itemPath);
+
+    const inPath = getInPath(absolutePath);
     const outPath = copyLibFile(inPath);
 
     if (!existsSync(outPath)) {
@@ -26,7 +31,8 @@ export const parseImage = (image?: MTMRImage): MTMRImage | undefined => {
 };
 
 export const parseAlternativeImages = (
-  images?: MTMRAlternativeImages
+  images?: MTMRAlternativeImages,
+  itemPath?: string
 ): MTMRAlternativeImages | undefined => {
   if (!images) {
     return;
@@ -41,7 +47,8 @@ export const parseAlternativeImages = (
   const result: MTMRAlternativeImages = {};
 
   keys.forEach((key) => {
-    const image = parseImage(images[key]);
+    const image = parseImage(images[key], itemPath);
+
     if (!image) {
       return;
     }

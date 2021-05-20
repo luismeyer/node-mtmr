@@ -13,7 +13,7 @@ export const parseBaseItem = async (
     title: baseItem.title,
     bordered: baseItem.bordered,
     refreshInterval: baseItem.refreshInterval,
-    image: parseImage(baseItem.image),
+    image: parseImage(baseItem.image, baseItem.currentPath),
     actions: await parseActions(baseItem),
   };
 };

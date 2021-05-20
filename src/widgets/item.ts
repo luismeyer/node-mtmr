@@ -10,6 +10,7 @@ export const createItem = <T extends BaseItem>(input: T): T => {
 
   return {
     ...input,
+    refreshInterval: 1,
     currentPath: callsite?.getFileName(),
   };
 };

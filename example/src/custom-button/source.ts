@@ -1,9 +1,13 @@
 import { createSourceScriptSync, stateValue } from "node-mtmr";
+import { activeKey, inactiveKey } from ".";
 
 createSourceScriptSync(() => {
   const active = stateValue<boolean>("custom", false);
-  const imageIdentifier = active ? "active" : "inactive";
+  const imageIdentifier = active ? activeKey : inactiveKey;
   const buttonLabel = "Label";
 
-  return [buttonLabel, imageIdentifier];
+  return {
+    label: buttonLabel,
+    imgKey: imageIdentifier,
+  };
 });

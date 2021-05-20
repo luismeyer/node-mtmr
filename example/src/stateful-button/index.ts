@@ -12,7 +12,9 @@ export const StatefulButton: ScriptTitledButton = createItem({
   sourceType: "javaScript",
   jsSource: {
     inline: () => {
-      sourceOutput(`Count: ${counter}`);
+      sourceOutput({
+        label: `Count: ${counter}`,
+      });
     },
   },
   actions: [

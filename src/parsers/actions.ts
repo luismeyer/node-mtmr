@@ -1,6 +1,6 @@
 import { Action, BaseItem } from "../typings/api";
 import { MTMRAction } from "../typings/mtmr";
-import { copyLibFile, getInPath } from "../lib";
+import { copyLibFile, getInPath, makeAbsolute } from "../lib";
 import { parseApplescriptSource, parseJavaScriptSource } from "./source";
 
 const parseAction = async (
@@ -10,12 +10,16 @@ const parseAction = async (
   if (action.action === "appleScript") {
     return {
       ...action,
-      actionAppleScript: await parseApplescriptSource(action.actionAppleScript),
+      actionAppleScript: await parseApplescriptSource(
+        action.actionAppleScript,
+        itemPath
+      ),
     };
   }
 
   if (action.action === "shellScript") {
-    const inPath = getInPath(action.executablePath);
+    const absolutePath = makeAbsolute(action.executablePath, itemPath);
+    const inPath = getInPath(absolutePath);
 
     return {
       ...action,

@@ -10,16 +10,19 @@ import {
   missingStatements,
   prependNodes,
 } from "../ast";
-import { copyLibFile, getInPath, setupOutPath } from "../lib";
+import { copyLibFile, getInPath, makeAbsolute, setupOutPath } from "../lib";
 import { JsSource, Source } from "../typings/api";
 import { MTMRSource } from "../typings/mtmr";
 import { randomName } from "../utils";
 
 export const parseApplescriptSource = async (
-  source: Source
+  source: Source,
+  buttonPath?: string
 ): Promise<MTMRSource> => {
   if ("filePath" in source) {
-    const inPath = getInPath(source.filePath);
+    const absolutePath = makeAbsolute(source.filePath, buttonPath);
+
+    const inPath = getInPath(absolutePath);
     const outPath = setupOutPath(inPath) + ".scpt";
 
     return {
@@ -30,9 +33,13 @@ export const parseApplescriptSource = async (
   return source;
 };
 
-export const parseShellScriptSource = (source: Source): MTMRSource => {
+export const parseShellScriptSource = (
+  source: Source,
+  buttonPath?: string
+): MTMRSource => {
   if ("filePath" in source) {
-    const inPath = getInPath(source.filePath);
+    const absolutePath = makeAbsolute(source.filePath, buttonPath);
+    const inPath = getInPath(absolutePath);
     return {
       filePath: copyLibFile(inPath),
     };
@@ -53,10 +60,13 @@ export const parseJavaScriptSource = async ({
   buttonPath,
 }: ParseTypeScriptSourceOption): Promise<MTMRSource> => {
   if ("filePath" in source) {
-    const libPath = copyLibFile(source.filePath);
+    const absolutePath = makeAbsolute(source.filePath, buttonPath);
 
-    const imports = findAllImportPaths(source.filePath);
-    imports.forEach(copyLibFile);
+    // recursive search all import files that have to moved to th outDir
+    const imports = findAllImportPaths(absolutePath);
+    imports.forEach((im) => copyLibFile(im));
+
+    const libPath = copyLibFile(absolutePath);
 
     return {
       filePath: await createJsWrapper(libPath, withSplit),
@@ -90,8 +100,11 @@ export const parseJavaScriptSource = async ({
     const libPath = setupOutPath(join(dir, fileName));
 
     const output = generate(node).code;
-
     writeFileSync(libPath, output);
+
+    // copy missing required modules
+    const imports = findAllImportPaths(buttonPath);
+    imports.forEach((im) => copyLibFile(im));
 
     return {
       filePath: await createJsWrapper(libPath, withSplit),

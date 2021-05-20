@@ -4,7 +4,7 @@ import { resolve } from "path";
 export const ModuleButton: ScriptTitledButton = createItem({
   align: "left",
   type: "scriptTitledButton",
-  title: "Module",
+  title: "this uses modules",
   bordered: true,
   background: "#454545",
   refreshInterval: 1,

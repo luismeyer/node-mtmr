@@ -1,7 +1,6 @@
 import { existsSync, mkdirSync, rmSync, writeFileSync } from "fs";
 import { Config, ConfigurationOptions, initConfig } from "./config";
 import { parse } from "./parsers";
-import { parseAssets } from "./parsers/assets";
 import { Item } from "./typings/api";
 import { MTMRItem } from "./typings/mtmr";
 import { loggerError, loggerInfo } from "./logging";
@@ -16,9 +15,6 @@ const parseItems: Parse = async (items) => {
   mkdirSync(outDir);
 
   loggerInfo("Cleared outDir...");
-
-  parseAssets();
-  loggerInfo("Parsed assets...");
 
   const result = await Promise.all(items.map(parse));
   loggerInfo("Parsed items...");

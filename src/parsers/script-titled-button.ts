@@ -24,11 +24,11 @@ const createSource = async (
   button: ScriptTitledButton
 ): Promise<MTMRSource> => {
   if (button.sourceType === "appleScript") {
-    return parseApplescriptSource(button.appleScriptSource);
+    return parseApplescriptSource(button.appleScriptSource, button.currentPath);
   }
 
   if (button.sourceType === "shellScript") {
-    return parseShellScriptSource(button.shellScriptSource);
+    return parseShellScriptSource(button.shellScriptSource, button.currentPath);
   }
 
   if (button.sourceType === "javaScript") {
@@ -47,5 +47,8 @@ export const parseScriptTitledButton = async (
 ): Promise<MTMRScriptTitledButton> => ({
   type: createType(button),
   source: await createSource(button),
-  alternativeImages: parseAlternativeImages(button.alternativeImages),
+  alternativeImages: parseAlternativeImages(
+    button.alternativeImages,
+    button.currentPath
+  ),
 });

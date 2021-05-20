@@ -2,8 +2,8 @@ import { parse, traverse } from "@babel/core";
 import * as t from "@babel/types";
 import generate from "@babel/generator";
 import { randomName } from "./utils";
-import { readFileSync } from "fs";
-import { dirname, extname, resolve } from "path";
+import { existsSync, readFileSync, statSync } from "fs";
+import { dirname, extname, join, resolve } from "path";
 
 type ParsedImport = {
   source: string;
@@ -217,11 +217,20 @@ export const missingStatements = (
 };
 
 const relativeToFullPath = (relatativeToPath: string, relativePath: string) => {
-  const pathWithExt = !extname(relativePath)
-    ? relativePath + extname(relatativeToPath)
-    : relativePath;
+  const rawPath = resolve(dirname(relatativeToPath), relativePath);
+  let inputPath = relativePath;
 
-  return resolve(dirname(relatativeToPath), pathWithExt);
+  // fix imports from index files
+  if (existsSync(rawPath) && statSync(rawPath).isDirectory()) {
+    inputPath = join(inputPath, "index");
+  }
+
+  // add missing '.js' extension
+  if (!extname(inputPath)) {
+    inputPath = inputPath + extname(relatativeToPath);
+  }
+
+  return resolve(dirname(relatativeToPath), inputPath);
 };
 
 export const findAllImportPaths = (inPath: string): string[] => {

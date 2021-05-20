@@ -1,4 +1,7 @@
-type SourceScriptResult = string | [string, string];
+type SourceScriptResult = {
+  label: string;
+  imgKey?: string;
+};
 
 export const createSourceScriptSync = (
   func: () => SourceScriptResult
@@ -13,10 +16,6 @@ export const createSourceScript = (
   func().then(sourceOutput);
 };
 
-export const sourceOutput = (result: SourceScriptResult): void => {
-  if (Array.isArray(result)) {
-    console.log(`${result[0]},${result[1]}`);
-  } else {
-    console.log(result);
-  }
+export const sourceOutput = ({ label, imgKey }: SourceScriptResult): void => {
+  console.log(`${label}${imgKey ? `,${imgKey}` : ""}`);
 };

@@ -16,8 +16,6 @@ const items: Item[] = [
 const execute = async () => {
   const parse = createParse({
     absoluteOutDir: path.resolve(__dirname, "../mtmr-dist"),
-    assetsDirName: "assets",
-    modulesDirName: "modules",
     loggingEnabled: true,
   });
 

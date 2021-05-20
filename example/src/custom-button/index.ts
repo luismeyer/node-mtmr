@@ -1,5 +1,7 @@
 import { createItem, ScriptTitledButton } from "node-mtmr";
-import { resolve } from "path";
+
+export const activeKey = "active";
+export const inactiveKey = "inactive";
 
 export const CustomButton: ScriptTitledButton = createItem({
   align: "left",
@@ -10,26 +12,26 @@ export const CustomButton: ScriptTitledButton = createItem({
   refreshInterval: 1,
   sourceType: "javaScript",
   jsSource: {
-    filePath: resolve(__dirname, "./source.js"),
+    filePath: "./source.js",
   },
   image: {
-    filePath: resolve(__dirname, "./assets/clock.png"),
+    filePath: "./assets/clock.png",
   },
   actions: [
     {
       action: "javaScript",
       trigger: "singleTap",
       actionJavaScript: {
-        filePath: resolve(__dirname, "./tap.js"),
+        filePath: "./tap.js",
       },
     },
   ],
   alternativeImages: {
-    active: {
-      filePath: resolve(__dirname, "./assets/clock-green.png"),
+    [activeKey]: {
+      filePath: "./assets/clock-green.png",
     },
-    inactive: {
-      filePath: resolve(__dirname, "./assets/clock-red.png"),
+    [inactiveKey]: {
+      filePath: "./assets/clock-red.png",
     },
   },
 });

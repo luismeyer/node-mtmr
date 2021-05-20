@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "CommonJS",
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
@@ -9,6 +9,7 @@
     "rootDir": "src",
     "outDir": "dist",
     "incremental": true,
+    "moduleResolution": "node",
     "resolveJsonModule": true,
     "esModuleInterop": true
   },

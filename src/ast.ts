@@ -2,11 +2,14 @@ import { parse, traverse } from "@babel/core";
 import * as t from "@babel/types";
 import generate from "@babel/generator";
 import { randomName } from "./utils";
+import { readFileSync } from "fs";
+import { dirname, extname, resolve } from "path";
 
 type ParsedImport = {
   source: string;
   arg: string;
   node: t.VariableDeclarator;
+  isJsFile: boolean;
   isNodeModule: boolean;
 };
 
@@ -26,6 +29,7 @@ export const imports = (src: string): ParsedImport[] => {
           .filter((arg): arg is t.StringLiteral => t.isStringLiteral(arg))
           .map((literal) => literal.value)
           .join("");
+        const argExtName = extname(arg);
 
         result = [
           ...result,
@@ -33,7 +37,8 @@ export const imports = (src: string): ParsedImport[] => {
             arg,
             node: path.node,
             source: src.slice(path.node.start ?? 0, path.node.end ?? 0),
-            isNodeModule: arg.startsWith("."),
+            isNodeModule: !arg.startsWith("."),
+            isJsFile: argExtName ? argExtName === ".js" : true,
           },
         ];
       }
@@ -158,7 +163,7 @@ export const callUnnamedLambda = (node: t.File): void => {
   node.program.body = [...node.program.body, ...calls];
 };
 
-const findMissingDependencyNodes = (
+const findMissingStatements = (
   fcSrc: string,
   fileSrc: string
 ): t.Statement[] => {
@@ -193,20 +198,51 @@ const findMissingDependencyNodes = (
     .map((def) => def.node);
 };
 
-export const fixMissingDependencyNodes = (
+export const missingStatements = (
   outNodes: t.Statement[],
   fcSrc: string,
   fileSrc: string
 ): t.Statement[] => {
-  const missingNodes = findMissingDependencyNodes(fcSrc, fileSrc);
+  const missingNodes = findMissingStatements(fcSrc, fileSrc);
 
   if (missingNodes.length === 0) {
     return outNodes;
   }
 
-  return fixMissingDependencyNodes(
+  return missingStatements(
     [...missingNodes, ...outNodes],
     generate(t.program(missingNodes)).code,
     fileSrc
   );
+};
+
+const relativeToFullPath = (relatativeToPath: string, relativePath: string) => {
+  const pathWithExt = !extname(relativePath)
+    ? relativePath + extname(relatativeToPath)
+    : relativePath;
+
+  return resolve(dirname(relatativeToPath), pathWithExt);
+};
+
+export const findAllImportPaths = (inPath: string): string[] => {
+  const src = readFileSync(inPath).toString();
+  const parsedImports = imports(src);
+
+  const jsImports = parsedImports
+    .filter(({ isNodeModule, isJsFile }) => !isNodeModule && isJsFile)
+    .map(({ arg }) => relativeToFullPath(inPath, arg));
+
+  const otherImports = parsedImports
+    .filter(({ isNodeModule, isJsFile }) => !isNodeModule && !isJsFile)
+    .map(({ arg }) => relativeToFullPath(inPath, arg));
+
+  if (jsImports.length === 0) {
+    return otherImports;
+  }
+
+  return [
+    ...otherImports,
+    ...jsImports,
+    ...jsImports.reduce((acc, cur) => [...acc, ...findAllImportPaths(cur)], []),
+  ];
 };

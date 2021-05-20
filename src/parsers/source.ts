@@ -6,9 +6,10 @@ import { compileApplescriptFile } from "../apple/compile-script";
 import { createJsWrapper } from "../apple/js-wrapper";
 import {
   callUnnamedLambda,
-  fixMissingDependencyNodes,
+  missingStatements,
   imports,
   prependNodes,
+  findAllImportPaths,
 } from "../ast";
 import { copyLibFile, getInPath, setupOutPath } from "../lib";
 import { JsSource, Source } from "../typings/api";
@@ -55,14 +56,8 @@ export const parseJavaScriptSource = async ({
   if ("filePath" in source) {
     const libPath = copyLibFile(source.filePath);
 
-    const src = readFileSync(source.filePath).toString();
-    const parsedImports = imports(src);
-
-    parsedImports
-      .filter(({ isNodeModule }) => isNodeModule)
-      .map(({ arg }) => arg + extname(source.filePath))
-      .map((path) => resolve(dirname(source.filePath), path))
-      .forEach(copyLibFile);
+    const imports = findAllImportPaths(source.filePath);
+    imports.forEach(copyLibFile);
 
     return {
       filePath: await createJsWrapper(libPath, withSplit),
@@ -84,7 +79,7 @@ export const parseJavaScriptSource = async ({
 
     // search for all dependencies, variables and functions outside function scope
     // that are needed inside the function
-    const outNodes = fixMissingDependencyNodes([], fc, fileSourceWithoutFc);
+    const outNodes = missingStatements([], fc, fileSourceWithoutFc);
 
     const node = parse(fc);
     prependNodes(node, outNodes);

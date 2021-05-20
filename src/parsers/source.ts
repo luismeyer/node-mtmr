@@ -1,13 +1,12 @@
 import { parse } from "acorn";
 import { generate } from "astring";
 import { readFileSync, writeFileSync } from "fs";
-import { dirname, basename, join, resolve, extname } from "path";
+import { basename, dirname, extname, join, resolve } from "path";
 import { compileApplescriptFile } from "../apple/compile-script";
 import { createJsWrapper } from "../apple/js-wrapper";
 import {
-  callUnnamedLambdas,
-  definitions,
-  identifiers,
+  callUnnamedLambda,
+  fixMissingDependencyNodes,
   imports,
   prependNodes,
 } from "../ast";
@@ -80,30 +79,24 @@ export const parseJavaScriptSource = async ({
     }
 
     const fc = source.inline.toString();
+    const fileSourceWithoutFc = readFileSync(buttonPath)
+      .toString()
+      .replace(fc, "null");
 
-    const fileSource = readFileSync(buttonPath).toString();
-    const fileSourceWithoutFc = fileSource.replace(fc, "null");
+    // search for all dependencies, variables and functions outside function scope
+    // that are needed inside the function
+    const outNodes = fixMissingDependencyNodes([], fc, fileSourceWithoutFc);
 
-    // find all definitions that aren't in the function scope
-    const defs = definitions(fileSourceWithoutFc);
-    const ids = identifiers(fc);
-
-    // select all nodes that are referenced by the function
-    const newNodes = [...defs]
-      .filter((def) => ids.has(def.name))
-      .map((def) => def.node);
-
-    // preppend the new nodes to the ast of the function
     const node = parse(fc, { ecmaVersion: 2020 }) as CustomNode;
-    prependNodes(node, newNodes);
-    callUnnamedLambdas(node);
+    prependNodes(node, outNodes);
+    callUnnamedLambda(node);
 
-    const output = generate(node);
-
-    // setup out put file
+    // setup output file
     const dir = dirname(buttonPath);
     const fileName = `${randomName()}.${basename(buttonPath)}`;
     const libPath = setupOutPath(join(dir, fileName));
+
+    const output = generate(node);
 
     writeFileSync(libPath, output);
 

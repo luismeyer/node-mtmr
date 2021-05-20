@@ -22,6 +22,11 @@ export type ObjectPatternNode = Node & {
   properties: PropertyNode[];
 };
 
+export type ArrayPatternNode = Node & {
+  type: "ArrayPattern";
+  elements: CustomNode[];
+};
+
 export type PropertyNode = Node & {
   type: "Property";
   method: boolean;
@@ -88,6 +93,7 @@ export type CustomNode =
   | VariableDeclaratorNode
   | IdentifierNode
   | ObjectPatternNode
+  | ArrayPatternNode
   | FunctionDeclarationNode
   | ExpressionStatementNode
   | AssignmentExpressionNode

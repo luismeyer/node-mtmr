@@ -1,13 +1,15 @@
 import { parse } from "acorn";
 import { simple } from "acorn-walk";
+import { generate } from "astring";
 import {
   ArrowFunctionExpressionNode,
   CallExpressionNode,
+  CustomNode,
   FunctionDeclarationNode,
   IdentifierNode,
   LiteralNode,
+  ProgramNode,
   VariableDeclarationNode,
-  CustomNode,
   VariableDeclaratorNode,
 } from "./typings/ast";
 import { randomName } from "./utils";
@@ -67,13 +69,14 @@ export const identifiers = (src: string): Set<string> => {
 };
 
 export type ParsedDefinition = {
-  name: string;
+  name?: string;
+  names?: string[];
   node: CustomNode;
 };
 
-export const definitions = (src: string): Set<ParsedDefinition> => {
+export const definitions = (src: string): ParsedDefinition[] => {
   const rootNode = parse(src, { ecmaVersion });
-  const variables = new Set<ParsedDefinition>();
+  const variables: ParsedDefinition[] = [];
 
   simple(rootNode, {
     VariableDeclaration: (node: VariableDeclarationNode): void => {
@@ -84,7 +87,7 @@ export const definitions = (src: string): Set<ParsedDefinition> => {
 
         // Normal variable definitions
         if (declerationNode.id.type === "Identifier") {
-          variables.add({
+          variables.push({
             name: declerationNode.id.name,
             node,
           });
@@ -92,20 +95,33 @@ export const definitions = (src: string): Set<ParsedDefinition> => {
 
         // Destructured definitions
         if (declerationNode.id.type === "ObjectPattern") {
-          declerationNode.id.properties.forEach((property) => {
-            if (property.value.type === "Identifier") {
-              variables.add({
-                name: property.value.name,
-                node,
-              });
-            }
+          const names = declerationNode.id.properties
+            .map((prop) => prop.value)
+            .filter((value) => value.type === "Identifier")
+            .map((value: IdentifierNode) => value.name);
+
+          variables.push({
+            names,
+            node,
+          });
+        }
+
+        // Destructured Array definitions
+        if (declerationNode.id.type === "ArrayPattern") {
+          const names = declerationNode.id.elements
+            .filter((element) => element.type === "Identifier")
+            .map((element: IdentifierNode) => element.name);
+
+          variables.push({
+            names,
+            node,
           });
         }
       });
     },
     FunctionDeclaration: (node: FunctionDeclarationNode): void => {
       if (node.id.type === "Identifier") {
-        variables.add({
+        variables.push({
           name: node.id.name,
           node,
         });
@@ -154,6 +170,14 @@ export const createLambdaCall = (lambdaName: string): CallExpressionNode => ({
   optional: false,
 });
 
+export const createProgram = (nodes: CustomNode[]): ProgramNode => ({
+  type: "Program",
+  sourceType: "script",
+  start: 0,
+  end: 0,
+  body: nodes,
+});
+
 export const prependNodes = (
   node: CustomNode,
   newNodes: CustomNode[]
@@ -163,21 +187,82 @@ export const prependNodes = (
   }
 };
 
-export const callUnnamedLambdas = (node: CustomNode): void => {
-  if (node.type === "Program") {
-    node.body.forEach((bodyNode, index) => {
-      if (
-        bodyNode.type === "ExpressionStatement" &&
-        bodyNode.expression.type === "ArrowFunctionExpression" &&
-        !bodyNode.expression.id
-      ) {
-        const lambdaName = "var" + randomName();
-        const lambda = createNamedLambda(bodyNode.expression, lambdaName);
-        const lambdaCall: CustomNode = createLambdaCall(lambdaName);
-
-        node.body[index] = lambda;
-        node.body = [...node.body, lambdaCall];
-      }
-    });
+export const callUnnamedLambda = (node: CustomNode): void => {
+  if (node.type !== "Program") {
+    return;
   }
+
+  let calls: CallExpressionNode[] = [];
+
+  node.body = node.body.map((bodyNode) => {
+    if (
+      bodyNode.type === "ExpressionStatement" &&
+      bodyNode.expression.type === "ArrowFunctionExpression" &&
+      !bodyNode.expression.id
+    ) {
+      const lambdaName = "var" + randomName();
+      const lambda = createNamedLambda(bodyNode.expression, lambdaName);
+      const lambdaCall: CustomNode = createLambdaCall(lambdaName);
+
+      calls = [...calls, lambdaCall];
+      return lambda;
+    }
+
+    return bodyNode;
+  });
+
+  node.body = [...node.body, ...calls];
+};
+
+const findMissingDependencyNodes = (
+  fcSrc: string,
+  fileSrc: string
+): CustomNode[] => {
+  // find all definitions that aren't in the fc scope
+  const defs = definitions(fileSrc);
+
+  // find all identifiers in the fc scope that might reference a definition outside scope
+  const srcIds = identifiers(fcSrc);
+
+  // find all definitions in the fc scope so the nodes wont get declared twice
+  const srcDefs = definitions(fcSrc);
+
+  const inSrcDefs = (defName: string) =>
+    srcDefs.map((srcDef) => srcDef.name).includes(defName) ||
+    srcDefs
+      .map(({ names }) => names)
+      .some((srcNames) => srcNames?.includes(defName));
+
+  // select all nodes that are referenced by the fc
+  return defs
+    .filter((def) => {
+      const fcIncludesName = def.name && srcIds.has(def.name);
+      const fcIncludesNames = def.names && def.names.some((n) => srcIds.has(n));
+      const fcIncludes = Boolean(fcIncludesName || fcIncludesNames);
+
+      const fcDoesntDefineName = def.name ? !inSrcDefs(def.name) : true;
+      const fcDoesntDefineNames = def.names ? !def.names.some(inSrcDefs) : true;
+      const fcDoesntDefine = Boolean(fcDoesntDefineName && fcDoesntDefineNames);
+
+      return fcIncludes && fcDoesntDefine;
+    })
+    .map((def) => def.node);
+};
+
+export const fixMissingDependencyNodes = (
+  outNodes: CustomNode[],
+  fcSrc: string,
+  fileSrc: string
+): CustomNode[] => {
+  const missingNodes = findMissingDependencyNodes(fcSrc, fileSrc);
+
+  if (missingNodes.length === 0) {
+    return outNodes;
+  }
+
+  return fixMissingDependencyNodes(
+    [...missingNodes, ...outNodes],
+    generate(createProgram(missingNodes)),
+    fileSrc
+  );
 };

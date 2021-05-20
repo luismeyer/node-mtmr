@@ -1,5 +1,4 @@
 import { ScriptTitledButton, createItem, sourceOutput, state } from "node-mtmr";
-import { resolve } from "path";
 
 const [counter, setCounter] = state("counter", 0);
 
@@ -21,7 +20,9 @@ export const StatefulButton: ScriptTitledButton = createItem({
       action: "javaScript",
       trigger: "singleTap",
       actionJavaScript: {
-        filePath: resolve(__dirname, "./tap.js"),
+        inline: () => {
+          setCounter(counter + 1);
+        },
       },
     },
     {
@@ -29,7 +30,7 @@ export const StatefulButton: ScriptTitledButton = createItem({
       trigger: "longTap",
       actionJavaScript: {
         inline: () => {
-          setCounter(counter + 1);
+          setCounter(0);
         },
       },
     },

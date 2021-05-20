@@ -1,6 +1,6 @@
 import { existsSync } from "fs";
 import { MTMRAlternativeImages, MTMRImage } from "../typings/mtmr";
-import { copyLibFile, getInPath, getOutPath } from "../lib";
+import { copyLibFile, getInPath } from "../lib";
 
 export const parseImage = (image?: MTMRImage): MTMRImage | undefined => {
   if (!image) {

@@ -1,15 +1,14 @@
-import { parse } from "@babel/parser";
 import generate from "@babel/generator";
+import { parse } from "@babel/parser";
 import { readFileSync, writeFileSync } from "fs";
-import { basename, dirname, extname, join, resolve } from "path";
+import { basename, dirname, join } from "path";
 import { compileApplescriptFile } from "../apple/compile-script";
 import { createJsWrapper } from "../apple/js-wrapper";
 import {
   callUnnamedLambda,
-  missingStatements,
-  imports,
-  prependNodes,
   findAllImportPaths,
+  missingStatements,
+  prependNodes,
 } from "../ast";
 import { copyLibFile, getInPath, setupOutPath } from "../lib";
 import { JsSource, Source } from "../typings/api";

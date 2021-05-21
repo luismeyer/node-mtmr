@@ -11,7 +11,7 @@
     "mtmr",
     "node"
   ],
-  "version": "2.0.1",
+  "version": "2.0.2",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "homepage": "https://github.com/luismeyer/node-mtmr#readme",
@@ -27,8 +27,7 @@
     "@babel/generator": "^7.14.3",
     "callsites": "^3.1.0",
     "copy-dir": "^1.3.0",
-    "glob": "^7.1.6",
-    "parse-function": "^5.6.10"
+    "glob": "^7.1.6"
   },
   "devDependencies": {
     "@babel/types": "^7.14.2",

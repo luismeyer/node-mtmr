@@ -2,8 +2,7 @@ import generate from "@babel/generator";
 import { parse } from "@babel/parser";
 import { readFileSync, writeFileSync } from "fs";
 import { basename, dirname, join } from "path";
-import { compileApplescriptFile } from "../apple/compile-script";
-import { createJsWrapper } from "../apple/js-wrapper";
+import { compileApplescriptFile, createJsWrapper } from "../apple";
 import {
   callUnnamedLambda,
   findAllImportPaths,

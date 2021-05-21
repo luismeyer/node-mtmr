@@ -24,18 +24,19 @@ const createSource = async (
   button: ScriptTitledButton
 ): Promise<MTMRSource> => {
   if (button.sourceType === "appleScript") {
-    return parseApplescriptSource(button.appleScriptSource);
+    return parseApplescriptSource(button.appleScriptSource, button.currentPath);
   }
 
   if (button.sourceType === "shellScript") {
-    return parseShellScriptSource(button.shellScriptSource);
+    return parseShellScriptSource(button.shellScriptSource, button.currentPath);
   }
 
   if (button.sourceType === "javaScript") {
-    return parseJavaScriptSource(
-      button.jsSource,
-      Object.keys(button.alternativeImages ?? {}).length > 0
-    );
+    return parseJavaScriptSource({
+      source: button.jsSource,
+      withSplit: Object.keys(button.alternativeImages ?? {}).length > 0,
+      buttonPath: button.currentPath,
+    });
   }
 
   throw new Error("Missing Source");
@@ -46,5 +47,8 @@ export const parseScriptTitledButton = async (
 ): Promise<MTMRScriptTitledButton> => ({
   type: createType(button),
   source: await createSource(button),
-  alternativeImages: parseAlternativeImages(button.alternativeImages),
+  alternativeImages: parseAlternativeImages(
+    button.alternativeImages,
+    button.currentPath
+  ),
 });

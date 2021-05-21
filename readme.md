@@ -3,7 +3,7 @@
 This is a Node library which wraps around [MTMR](https://github.com/Toxblh/MTMR). It is highly recommended to use this library with typescript. The main features are:
 
 1. TS/JS support for button handlers
-2. Typescript typings for the items.json
+2. Typescript typings for the items
 
 For further documentation have a look at the original [repo](https://github.com/Toxblh/MTMR).
 
@@ -34,16 +34,12 @@ import { createParse } from "node-mtmr";
 
 const parse = createParse({
   absoluteOutDir: "/Users/username/my-mtmr-config",
-  assetsDirName: "assets",
-  modulesDirName: "modules",
   loggingEnabled: true,
 });
 ```
 
 1. "absoluteOutDir" is the output path for the script and assets
-2. "assetsDirName" is the name of all asset directories. On parse the lib will copy all asset directories into the "absoluteOutDir"
-3. "modulesDirName" is the name of all module directories. On parse the lib will copy all module directories into the "absoluteOutDir"
-4. "loggingEnabled" configures the logging output
+2. "loggingEnabled" configures the logging output
 
 ### Execute parse
 
@@ -69,10 +65,13 @@ If you want to create a ScriptTitledButton with a jsSource you can use either th
 
 ```ts
 createSourceScriptSync(() => {
-  const imageIdentifier = "inactive";
   const buttonLabel = "Label";
+  const imageIdentifier = "inactive";
 
-  return [buttonLabel, imageIdentifier];
+  return {
+    label: buttonLabel,
+    imgKey: imageIdentifier,
+  };
 });
 ```
 
@@ -85,7 +84,16 @@ createSourceScript(async () => {
 });
 ```
 
-If you your button needs a state make use of the state functions. They are storing your data in your computers ''/tmp/'' folder (so it might be deleted at some point):
+or pass the result to the `sourceOutput` util function
+
+```ts
+sourceOutput({
+  label: "Label",
+  imgKey: "key",
+});
+```
+
+If you your button needs a state make use of the state functions. Internally the data is stored in your computers ''/tmp/'' folder (so it might be deleted at some point):
 
 ```ts
 const stateId = "counter";
@@ -95,10 +103,27 @@ const setCount = stateFunction<number>(stateId);
 const [count, setCount] = state<number>(stateId);
 ```
 
-## Hints
+## JavaScriptTitledButton
 
-Instead of looking up the absolute path of your folder, you can just use node's path lib
+This is the new item type which supports JavaScript.
 
-```js
-absoluteOutDir: path.resolve(__dirname, "../mtmr");
+```ts
+{
+  type: "scriptTitledButton",
+  sourceType: "javaScript",
+  jsSource: {
+    inline: () => {
+      // Your function logic
+    },
+  },
+  actions: [
+    {
+      action: "javaScript",
+      trigger: "singleTap",
+      actionJavaScript: {
+        filePath: "./path/to/js/file.js",
+      },
+    },
+  ],
+}
 ```

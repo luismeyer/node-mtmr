@@ -3,7 +3,7 @@ export function someModuleFunction(arg: string): string {
 }
 
 export function anotherModuleFunction(arg: string): string {
-  return "is " + arg;
+  return "uses " + arg;
 }
 
 export type State = {

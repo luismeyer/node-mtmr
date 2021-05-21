@@ -1,18 +1,25 @@
-import { Action } from "../typings/api";
+import { Action, BaseItem } from "../typings/api";
 import { MTMRAction } from "../typings/mtmr";
-import { copyLibFile, getInPath } from "../lib";
+import { copyLibFile, getInPath, makeAbsolute } from "../lib";
 import { parseApplescriptSource, parseJavaScriptSource } from "./source";
 
-const parseAction = async (action: Action): Promise<MTMRAction> => {
+const parseAction = async (
+  action: Action,
+  itemPath?: string
+): Promise<MTMRAction> => {
   if (action.action === "appleScript") {
     return {
       ...action,
-      actionAppleScript: await parseApplescriptSource(action.actionAppleScript),
+      actionAppleScript: await parseApplescriptSource(
+        action.actionAppleScript,
+        itemPath
+      ),
     };
   }
 
   if (action.action === "shellScript") {
-    const inPath = getInPath(action.executablePath);
+    const absolutePath = makeAbsolute(action.executablePath, itemPath);
+    const inPath = getInPath(absolutePath);
 
     return {
       ...action,
@@ -24,7 +31,10 @@ const parseAction = async (action: Action): Promise<MTMRAction> => {
     return {
       ...action,
       action: "appleScript",
-      actionAppleScript: await parseJavaScriptSource(action.actionJavaScript),
+      actionAppleScript: await parseJavaScriptSource({
+        source: action.actionJavaScript,
+        buttonPath: itemPath,
+      }),
     };
   }
 
@@ -32,11 +42,13 @@ const parseAction = async (action: Action): Promise<MTMRAction> => {
 };
 
 export const parseActions = (
-  actions?: Action[]
+  baseItem: BaseItem
 ): Promise<MTMRAction[]> | undefined => {
-  if (!actions) {
+  if (!baseItem.actions) {
     return;
   }
 
-  return Promise.all(actions.map(parseAction));
+  return Promise.all(
+    baseItem.actions.map((action) => parseAction(action, baseItem.currentPath))
+  );
 };

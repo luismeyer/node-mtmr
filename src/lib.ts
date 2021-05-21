@@ -1,9 +1,10 @@
 import copy from "copy-dir";
 import fs from "fs";
-import path from "path";
+import { isAbsolute, resolve } from "path";
 import { glob } from "glob";
 import { join, dirname } from "path";
 import { Config } from "./config";
+import { isFile } from "./utils";
 
 const removeSubPath = (absolutePath: string, subpath: string) => {
   if (!absolutePath.includes(subpath)) {
@@ -52,12 +53,11 @@ export const getInPath = (absolutePath: string): string => {
 
 export const setupOutPath = (absolutePath: string): string => {
   const outPath = getOutPath(absolutePath);
-  const isFile = Boolean(path.extname(outPath));
 
   clearAbsoluteOutPath(outPath);
   fs.mkdirSync(dirname(outPath), { recursive: true });
 
-  if (!isFile) {
+  if (!isFile(outPath)) {
     fs.mkdirSync(outPath);
   }
 
@@ -70,6 +70,22 @@ export const clearAbsoluteOutPath = (absoluteOutPath: string): void => {
   }
 
   fs.rmSync(absoluteOutPath, { recursive: true, force: true });
+};
+
+export const makeAbsolute = (path: string, basePath?: string): string => {
+  if (isAbsolute(path)) {
+    return path;
+  }
+
+  if (!basePath) {
+    throw new Error(
+      "Missing basepath. If you use relative paths, please use the 'createItem' util function to create items.\n" +
+        `Tried to parse ${path}, ${basePath}`
+    );
+  }
+
+  const base = isFile(basePath) ? dirname(basePath) : basePath;
+  return resolve(base, path);
 };
 
 export const copyLibFile = (absolutePath: string): string => {

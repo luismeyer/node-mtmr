@@ -93,7 +93,7 @@ sourceOutput({
 });
 ```
 
-If you your button needs a state make use of the state functions. They are storing your data in your computers ''/tmp/'' folder (so it might be deleted at some point):
+If you your button needs a state make use of the state functions. Internally the data is stored in your computers ''/tmp/'' folder (so it might be deleted at some point):
 
 ```ts
 const stateId = "counter";
@@ -108,5 +108,22 @@ const [count, setCount] = state<number>(stateId);
 This is the new item type which supports JavaScript.
 
 ```ts
-
+{
+  type: "scriptTitledButton",
+  sourceType: "javaScript",
+  jsSource: {
+    inline: () => {
+      // Your function logic
+    },
+  },
+  actions: [
+    {
+      action: "javaScript",
+      trigger: "singleTap",
+      actionJavaScript: {
+        filePath: "./path/to/js/file.js",
+      },
+    },
+  ],
+}
 ```

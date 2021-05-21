@@ -1,6 +1,6 @@
 import copy from "copy-dir";
 import fs from "fs";
-import path, { isAbsolute, resolve } from "path";
+import { isAbsolute, resolve } from "path";
 import { glob } from "glob";
 import { join, dirname } from "path";
 import { Config } from "./config";

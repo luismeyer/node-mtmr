@@ -33,12 +33,12 @@ Create an index file inside your "src" directory. In this file call the "createP
 import { createParse } from "node-mtmr";
 
 const parse = createParse({
-  absoluteOutDir: "/Users/username/my-mtmr-config",
+  outDir: "./my-mtmr-config",
   loggingEnabled: true,
 });
 ```
 
-1. "absoluteOutDir" is the output path for the script and assets
+1. "outDir" is the output path for the script and assets. It's either relative to the cwd or absolute
 2. "loggingEnabled" configures the logging output
 
 ### Execute parse

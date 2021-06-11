@@ -11,7 +11,7 @@
     "mtmr",
     "node"
   ],
-  "version": "2.0.3",
+  "version": "2.1.0",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "homepage": "https://github.com/luismeyer/node-mtmr#readme",

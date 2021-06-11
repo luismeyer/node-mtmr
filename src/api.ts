@@ -10,7 +10,7 @@ const { HOME } = process.env;
 type Parse = (items: Item[]) => Promise<MTMRItem[]>;
 
 const parseItems: Parse = async (items) => {
-  const outDir = Config.absoluteOutDir;
+  const outDir = Config.outDir;
   rmSync(outDir, { recursive: true, force: true });
   mkdirSync(outDir);
 

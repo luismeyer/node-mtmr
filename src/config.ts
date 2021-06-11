@@ -1,25 +1,23 @@
 import { CompilerOptions, compilerOptions } from "./lib";
 
 export type ConfigurationOptions = {
-  absoluteOutDir: string;
+  outDir: string;
   loggingEnabled?: boolean;
 };
 
 type Configuration = {
-  absoluteOutDir: string;
-
+  outDir: string;
   loggingEnabled: boolean;
   tsCompilerOptions?: CompilerOptions;
 };
 
 export let Config: Configuration = {
-  absoluteOutDir: "",
+  outDir: "",
   loggingEnabled: true,
-  tsCompilerOptions: undefined,
 };
 
 const validateConfig = () => {
-  if (!Config.absoluteOutDir) {
+  if (!Config.outDir) {
     throw new Error("Missing absolute outDir");
   }
 };

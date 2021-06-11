@@ -1,8 +1,7 @@
 import copy from "copy-dir";
 import fs from "fs";
-import { isAbsolute, resolve } from "path";
 import { glob } from "glob";
-import { join, dirname } from "path";
+import { join, dirname, isAbsolute, resolve } from "path";
 import { Config } from "./config";
 import { isFile } from "./utils";
 
@@ -35,7 +34,9 @@ export const getOutPath = (absolutePath: string): string => {
       : path;
   }
 
-  return join(Config.absoluteOutDir, path);
+  return isAbsolute(Config.outDir)
+    ? join(Config.outDir, path)
+    : join(resolve(process.cwd(), Config.outDir), path);
 };
 
 export const getInPath = (absolutePath: string): string => {

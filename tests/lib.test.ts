@@ -12,7 +12,7 @@ import {
 describe("getOutPath", function () {
   beforeAll(function () {
     initConfig({
-      absoluteOutDir: "test/",
+      outDir: "/test/",
     });
 
     Config.tsCompilerOptions = {
@@ -36,14 +36,14 @@ describe("getOutPath", function () {
     expect(result).not.toContain("out/dir");
   });
 
-  it("prepends the absoluteOutDir", function () {
+  it("prepends the outDir", function () {
     const result = getOutPath("/foo/bar");
-    expect(result).toEqual("test/foo/bar");
+    expect(result).toEqual("/test/foo/bar");
   });
 
   it("handles broken paths", function () {
     const result = getOutPath("//foo///bar/");
-    expect(result).toEqual("test/foo/bar/");
+    expect(result).toEqual("/test/foo/bar/");
   });
 });
 
@@ -65,20 +65,23 @@ describe("getInPath", function () {
 });
 
 describe("setupOutPath", function () {
-  const folderPath = "/tmp/test";
+  const folderPath = "/test";
   const filePath = `${folderPath}/test.txt`;
 
-  beforeEach(function () {
-    Config.absoluteOutDir = "";
+  const outFolderPath = `/tmp${folderPath}`;
+  const outFilePath = `/tmp${filePath}`;
 
-    if (existsSync(folderPath)) {
-      rmSync(folderPath, { recursive: true, force: true });
+  beforeEach(function () {
+    Config.outDir = "/tmp/";
+
+    if (existsSync(outFolderPath)) {
+      rmSync(outFolderPath, { recursive: true, force: true });
     }
   });
 
   it("clears the directory for folders", function () {
-    mkdirSync(folderPath, { recursive: true });
-    writeFileSync(filePath, "test");
+    mkdirSync(outFolderPath, { recursive: true });
+    writeFileSync(outFilePath, "test");
 
     setupOutPath(folderPath);
 
@@ -86,29 +89,29 @@ describe("setupOutPath", function () {
   });
 
   it("clears the directory for files", function () {
-    mkdirSync(folderPath, { recursive: true });
-    writeFileSync(`${folderPath}/test.txt`, "test");
+    mkdirSync(outFolderPath, { recursive: true });
+    writeFileSync(outFilePath, "test");
 
     setupOutPath(filePath);
-    expect(existsSync(`${folderPath}/test.txt`)).toBeFalsy();
+    expect(existsSync(outFilePath)).toBeFalsy();
   });
 
   it("creates the directory for folders", function () {
     setupOutPath(folderPath);
 
-    expect(existsSync(folderPath)).toBeTruthy();
+    expect(existsSync(outFolderPath)).toBeTruthy();
   });
 
   it("creates the directory for files", function () {
     setupOutPath(filePath);
 
-    expect(existsSync(folderPath)).toBeTruthy();
+    expect(existsSync(outFolderPath)).toBeTruthy();
   });
 
   it("returns the outPath", function () {
     const result = setupOutPath(filePath);
 
-    expect(result).toEqual(result);
+    expect(result).toEqual(outFilePath);
   });
 });
 
@@ -118,7 +121,7 @@ describe("copyLibFile", function () {
 
   beforeAll(function () {
     initConfig({
-      absoluteOutDir: "/tmp/test/out",
+      outDir: "/tmp/test/out",
     });
 
     Config.tsCompilerOptions = {

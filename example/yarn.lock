@@ -536,7 +536,7 @@ ms@2.1.2:
   integrity sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==
 
 node-mtmr@../:
-  version "2.0.3"
+  version "2.1.0"
   dependencies:
     "@babel/core" "^7.14.3"
     "@babel/generator" "^7.14.3"

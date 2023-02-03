@@ -20,7 +20,6 @@ export const imports = (src: string): ParsedImport[] => {
   traverse(rootNode, {
     VariableDeclarator: function (path) {
       if (
-        path.node.init &&
         t.isCallExpression(path.node.init) &&
         t.isIdentifier(path.node.init.callee) &&
         path.node.init.callee.name === "require"
@@ -29,6 +28,7 @@ export const imports = (src: string): ParsedImport[] => {
           .filter((arg): arg is t.StringLiteral => t.isStringLiteral(arg))
           .map((literal) => literal.value)
           .join("");
+
         const argExtName = extname(arg);
 
         result = [
@@ -36,9 +36,9 @@ export const imports = (src: string): ParsedImport[] => {
           {
             arg,
             node: path.node,
-            source: src.slice(path.node.start ?? 0, path.node.end ?? 0),
+            source: src.slice(path.parent.start ?? 0, path.parent.end ?? 0),
             isNodeModule: !arg.startsWith("."),
-            isJsFile: argExtName ? argExtName === ".js" : true,
+            isJsFile: argExtName ? argExtName === ".js" : false,
           },
         ];
       }
@@ -48,7 +48,7 @@ export const imports = (src: string): ParsedImport[] => {
   return result;
 };
 
-export const identifiers = (src: string): Set<string> => {
+export const identifierNames = (src: string): Set<string> => {
   const rootNode = parse(src);
   const result = new Set<string>();
 
@@ -126,7 +126,7 @@ export const definitions = (src: string): ParsedDefinition[] => {
   return variables;
 };
 
-export const createNamedLambda = (
+const createNamedLambda = (
   lambdaExpression: t.ArrowFunctionExpression,
   lambdaName: string
 ): t.VariableDeclaration =>
@@ -134,7 +134,7 @@ export const createNamedLambda = (
     t.variableDeclarator(t.identifier(lambdaName), lambdaExpression),
   ]);
 
-export const createLambdaCall = (lambdaName: string): t.ExpressionStatement =>
+const createLambdaCall = (lambdaName: string): t.ExpressionStatement =>
   t.expressionStatement(t.callExpression(t.identifier(lambdaName), []));
 
 export const prependNodes = (node: t.File, newNodes: t.Statement[]): void => {
@@ -146,18 +146,18 @@ export const callUnnamedLambda = (node: t.File): void => {
 
   node.program.body = node.program.body.map((bodyNode) => {
     if (
-      bodyNode.type === "ExpressionStatement" &&
-      bodyNode.expression.type === "ArrowFunctionExpression"
+      bodyNode.type !== "ExpressionStatement" ||
+      bodyNode.expression.type !== "ArrowFunctionExpression"
     ) {
-      const lambdaName = "var" + randomName();
-      const lambda = createNamedLambda(bodyNode.expression, lambdaName);
-      const lambdaCall = createLambdaCall(lambdaName);
-
-      calls = [...calls, lambdaCall];
-      return lambda;
+      return bodyNode;
     }
 
-    return bodyNode;
+    const lambdaName = "var" + randomName();
+    const lambda = createNamedLambda(bodyNode.expression, lambdaName);
+    const lambdaCall = createLambdaCall(lambdaName);
+
+    calls = [...calls, lambdaCall];
+    return lambda;
   });
 
   node.program.body = [...node.program.body, ...calls];
@@ -171,7 +171,7 @@ const findMissingStatements = (
   const defs = definitions(fileSrc);
 
   // find all identifiers in the fc scope that might reference a definition outside scope
-  const srcIds = identifiers(fcSrc);
+  const srcIds = identifierNames(fcSrc);
 
   // find all definitions in the fc scope so the nodes wont get declared twice
   const srcDefs = definitions(fcSrc);
@@ -199,9 +199,9 @@ const findMissingStatements = (
 };
 
 export const missingStatements = (
-  outNodes: t.Statement[],
   fcSrc: string,
-  fileSrc: string
+  fileSrc: string,
+  outNodes: t.Statement[] = []
 ): t.Statement[] => {
   const missingNodes = findMissingStatements(fcSrc, fileSrc);
 
@@ -209,11 +209,9 @@ export const missingStatements = (
     return outNodes;
   }
 
-  return missingStatements(
-    [...missingNodes, ...outNodes],
-    generate(t.program(missingNodes)).code,
-    fileSrc
-  );
+  const newFcSrc = generate(t.program(missingNodes)).code;
+
+  return missingStatements(newFcSrc, fileSrc, [...missingNodes, ...outNodes]);
 };
 
 const relativeToFullPath = (relatativeToPath: string, relativePath: string) => {

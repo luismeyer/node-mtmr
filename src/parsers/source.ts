@@ -87,7 +87,7 @@ export const parseJavaScriptSource = async ({
 
     // search for all dependencies, variables and functions outside function scope
     // that are needed inside the function
-    const outNodes = missingStatements([], fc, fileSourceWithoutFc);
+    const outNodes = missingStatements(fc, fileSourceWithoutFc);
 
     const node = parse(fc);
     prependNodes(node, outNodes);
